@@ -38,7 +38,7 @@ const ZALO_OA_SECRET_KEY_CFG = "put_your_oa_secret_key_here";
 $zalo = new Zalo(ZaloConfig::getInstance()->getConfig());
 ```
 
-#### **Social API**
+## Social API
 
 ***Get Login Url***
 ```php
@@ -113,7 +113,7 @@ $response = $zalo->post('/me/message', $accessToken, $params, Zalo::API_TYPE_GRA
 $result = $response->getDecodedBody(); // result
 ```
 
-#### **Official Account Open API**
+## Official Account Open API
 **Send text message**
 ```php
 $data = array(
@@ -243,7 +243,7 @@ $response = $this->zalo->post('/sendmessage/phone/cs', null, $params, Zalo::API_
 $result = $response->getDecodedBody(); // result
 ```
 
-#### **Store API**
+## Store API
 **Create product**
 ```php
 $cate = array('cateid' => 'put_your_cate_id_here');
