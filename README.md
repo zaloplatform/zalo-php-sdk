@@ -35,6 +35,8 @@ const ZALO_OA_SECRET_KEY_CFG = "put_your_oa_secret_key_here";
 ```
 **Create an instance of the Zalo class**
 ```php
+use Zalo\Zalo;
+
 $zalo = new Zalo(ZaloConfig::getInstance()->getConfig());
 ```
 
