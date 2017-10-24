@@ -7,7 +7,7 @@
 The Zalo PHP SDK can be installed with [Composer](https://getcomposer.org/). Run this command:
 
 ```sh
-composer require hoanglinh91/composer-zsdk-library
+composer require zaloplatform/zalo-php-sdk
 ```
 
 ## How To Use
@@ -118,7 +118,7 @@ Current version is 1.0.0. We will update more features in next version.
 
 ## Authors
 
-* **LinhNDH** 
+* **Zalo's Developer** 
 
 ## License
 
