@@ -1,0 +1,24 @@
+{
+    "name": "zaloplatform/zalo-php-sdk",
+    "description": "sdk for zalo developers",
+    "keywords": ["zalosdk", "composer", "zalo", "sdk"],
+    "license": "Zalo Platform",
+    "authors": [
+        {
+            "name": "zaloplatform",
+            "email": "zaloplatform@gmail.com"
+        }
+    ],
+    "type": "project",
+    "require": {
+		"php": ">=5.4"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "5.2.*"
+    },
+	"autoload": {
+        "psr-4": {
+            "Zalo\\": "src/"
+        }
+    }
+}
