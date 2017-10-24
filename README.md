@@ -19,7 +19,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 **Configuration**
 
-ZaloConfig.php
+***File to config -> ZaloConfig.php***
 ```php
 /** config your app id here */
 const ZALO_APP_ID_CFG = "put_your_app_id_here";
@@ -35,8 +35,6 @@ const ZALO_OA_SECRET_KEY_CFG = "put_your_oa_secret_key_here";
 ```
 **Create an instance of the Zalo class**
 ```php
-$app_id = 'put_your_app_id_here';
-$app_secret = 'put_your_app_secret_here';
 $zalo = new Zalo(ZaloConfig::getInstance()->getConfig());
 ```
 
