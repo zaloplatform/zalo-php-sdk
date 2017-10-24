@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v1)
+# Zalo SDK for PHP (v1.0.0)
 
 [![N|Solid](https://developers.zalo.me/web/static/prodution/images/logo.png)](https://developers.zalo.me/)
 
