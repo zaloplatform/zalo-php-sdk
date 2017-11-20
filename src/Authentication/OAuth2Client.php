@@ -208,8 +208,7 @@ class OAuth2Client
             'GET',
             $endpoint,
             $params,
-            null,
-            Zalo::API_TYPE_AUTHEN
+            null
         );
 
         return $this->client->sendRequest($this->lastRequest);

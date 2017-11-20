@@ -41,7 +41,6 @@ class ZaloResponseException extends ZaloSDKException {
     public function __construct(ZaloResponse $response, ZaloSDKException $previousException = null) {
         $this->response = $response;
         $this->responseData = $response->getDecodedBody();
-        print_r($this->responseData);
         $errorMessage = $this->get('message', 'Unknown error from Graph.');
         $errorCode = $this->get('code', -1);
         parent::__construct($errorMessage, $errorCode, $previousException);

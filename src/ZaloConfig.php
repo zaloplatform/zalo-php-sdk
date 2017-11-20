@@ -14,10 +14,10 @@ class ZaloConfig {
     protected static $instance;
     
     /** config your app id here */
-    const ZALO_APP_ID_CFG = "960183778787479128";
+    const ZALO_APP_ID_CFG = "1131677296116040198";
     
     /** config your app secret key here */
-    const ZALO_APP_SECRET_KEY_CFG = "coLo667bj6S0LBd57TOU";
+    const ZALO_APP_SECRET_KEY_CFG = "rbZ5wQ2tVUh7Y3y6Kxqe";
     
     /** config your offical account id here */
     const ZALO_OA_ID_CFG = "2491302944280861639";

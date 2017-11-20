@@ -15,14 +15,14 @@ class ZaloStreamHttpClient implements ZaloHttpClientInterface
     /**
      * @var ZaloStream Procedural stream wrapper as object.
      */
-    protected $facebookStream;
+    protected $zaloStream;
 
     /**
      * @param ZaloStream|null Procedural stream wrapper as object.
      */
-    public function __construct(ZaloStream $facebookStream = null)
+    public function __construct(ZaloStream $zaloStream = null)
     {
-        $this->facebookStream = $facebookStream ?: new ZaloStream();
+        $this->zaloStream = $zaloStream ?: new ZaloStream();
     }
 
     /**
@@ -46,9 +46,9 @@ class ZaloStreamHttpClient implements ZaloHttpClientInterface
             ],
         ];
 
-        $this->facebookStream->streamContextCreate($options);
-        $rawBody = $this->facebookStream->fileGetContents($url);
-        $rawHeaders = $this->facebookStream->getResponseHeaders();
+        $this->zaloStream->streamContextCreate($options);
+        $rawBody = $this->zaloStream->fileGetContents($url);
+        $rawHeaders = $this->zaloStream->getResponseHeaders();
 
         if ($rawBody === false || empty($rawHeaders)) {
             throw new ZaloSDKException('Stream returned an empty response', 660);

@@ -73,6 +73,11 @@ class Zalo
     const API_TYPE_OA = 2;
     
     /**
+     * @const int OfficalAccount api onbehalf type.
+     */
+    const API_TYPE_OA_ONBEHALF = 3;
+    
+    /**
      * @var ZaloApp The ZaloApp entity.
      */
     protected $app;
@@ -251,15 +256,14 @@ class Zalo
      *
      * @throws ZaloSDKException
      */
-    public function get($endpoint, $accessToken = null, $params = [], $apiType = null, $eTag = null)
+    public function get($endpoint,array $params = [], $accessToken = null, $eTag = null)
     {   
         return $this->sendRequest(
             'GET',
             $endpoint,
             $params,
             $accessToken,
-            $eTag,
-            $apiType
+            $eTag
         );
     }
     /**
@@ -275,15 +279,37 @@ class Zalo
      *
      * @throws ZaloSDKException
      */
-    public function post($endpoint, $accessToken = null, array $params = [], $apiType = null, $eTag = null)
+    public function post($endpoint, $params = [], $accessToken = null, $eTag = null)
     {
         return $this->sendRequest(
             'POST',
             $endpoint,
             $params,
             $accessToken,
-            $eTag,
-            $apiType
+            $eTag
+        );
+    }
+    /**
+     * Sends a POST request to Graph and returns the result.
+     *
+     * @param string                  $endpoint
+     * @param array                   $params
+     * @param AccessToken|string|null $accessToken
+     * @param string|null             $eTag
+     * @param string|null             $graphVersion
+     *
+     * @return ZaloResponse
+     *
+     * @throws ZaloSDKException
+     */
+    public function uploadVideo($endpoint, array $params = [], $accessToken = null, $eTag = null)
+    {
+        return $this->sendRequestUploadVideo(
+            'POST',
+            $endpoint,
+            $params,
+            $accessToken,
+            $eTag
         );
     }
     /**
@@ -299,15 +325,14 @@ class Zalo
      *
      * @throws ZaloSDKException
      */
-    public function delete($endpoint, array $params = [], $accessToken = null, $eTag = null, $graphVersion = null)
+    public function delete($endpoint, array $params = [], $accessToken = null, $eTag = null)
     {
         return $this->sendRequest(
             'DELETE',
             $endpoint,
             $params,
             $accessToken,
-            $eTag,
-            $graphVersion
+            $eTag
         );
     }
     /**
@@ -324,10 +349,29 @@ class Zalo
      *
      * @throws ZaloSDKException
      */
-    public function sendRequest($method, $endpoint, array $params = [], $accessToken = null, $eTag = null, $apiType = null)
+    public function sendRequest($method, $endpoint, array $params = [], $accessToken = null, $eTag = null)
     {
-        $request = $this->request($method, $endpoint, $params, $accessToken, $eTag, $apiType);
+        $request = $this->request($method, $endpoint, $params, $accessToken, $eTag);
         return $this->lastResponse = $this->client->sendRequest($request);
+    }
+    /**
+     * Sends a request upload video to OA and returns the result.
+     *
+     * @param string                  $method
+     * @param string                  $endpoint
+     * @param array                   $params
+     * @param AccessToken|string|null $accessToken
+     * @param string|null             $eTag
+     * @param string|null             $graphVersion
+     *
+     * @return ZaloResponse
+     *
+     * @throws ZaloSDKException
+     */
+    public function sendRequestUploadVideo($method, $endpoint, array $params = [], $accessToken = null, $eTag = null)
+    {
+        $request = $this->request($method, $endpoint, $params, $accessToken, $eTag);
+        return $this->lastResponse = $this->client->sendRequestUploadVideo($request);
     }
     /**
      * Instantiates a new ZaloRequest entity.
@@ -343,7 +387,7 @@ class Zalo
      *
      * @throws ZaloSDKException
      */
-    public function request($method, $endpoint, array $params = [], $accessToken = null, $eTag = null, $apiType = null)
+    public function request($method, $endpoint, array $params = [], $accessToken = null, $eTag = null)
     {
         $request =  new ZaloRequest(
             $this->app,
@@ -352,11 +396,11 @@ class Zalo
             $method,
             $endpoint,
             $params,
-            $eTag,
-            $apiType
+            $eTag
         );
         return $request;
     }
+    
     public function getRedirectLoginHelper()
     {
         return new ZaloRedirectLoginHelper(

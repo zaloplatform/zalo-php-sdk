@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 
  * @author : linhndh
@@ -6,10 +7,9 @@
 
 namespace Zalo;
 
-use Zalo\HttpClients\ZaloHttpClientInterface;
-use Zalo\HttpClients\ZaloCurlHttpClient;
-use Zalo\HttpClients\ZaloStreamHttpClient;
 use Zalo\Exceptions\ZaloSDKException;
+use Zalo\HttpClients\ZaloCurlHttpClient;
+use Zalo\HttpClients\ZaloHttpClientInterface;
 
 /**
  * Class ZaloClient
@@ -161,10 +161,14 @@ class ZaloClient {
         } else if ($request->getApiType() === Zalo::API_TYPE_OA) {
             $params = $this->getParamsData($request);
             $request->setParams($params);
+        } else if ($request->getApiType() === Zalo::API_TYPE_OA_ONBEHALF) {
+            $request->validateAccessToken();
+            $params = $this->getParamsOAOnbehalf($request);
+            $request->setParams($params);
         }
 
         list($url, $method, $headers, $body) = $this->prepareRequestMessage($request);
-
+        
         // Since file uploads can take a while, we need to give more time for uploads
         $timeOut = static::DEFAULT_REQUEST_TIMEOUT;
 
@@ -182,6 +186,58 @@ class ZaloClient {
         }
 
         return $returnResponse;
+    }
+
+    /**
+     * Makes the upload request to Graph and returns the result.
+     *
+     * @param ZaloRequest $request
+     *
+     * @return ZaloResponse
+     *
+     * @throws ZaloSDKException
+     */
+    public function sendRequestUploadVideo(ZaloRequest $request) {
+
+        list($url, $method, $headers, $body) = $this->prepareUploadVideoRequestMessage($request);
+        // Since file uploads can take a while, we need to give more time for uploads
+        $timeOut = static::DEFAULT_REQUEST_TIMEOUT;
+
+        // Should throw `ZaloSDKException` exception on HTTP client error.
+        // Don't catch to allow it to bubble up.
+        $rawResponse = $this->httpClientHandler->send($url, $method, $body, $headers, $timeOut);
+        static::$requestCount++;
+
+        $returnResponse = new ZaloResponse(
+                $request, $rawResponse->getBody(), $rawResponse->getHttpResponseCode(), $rawResponse->getHeaders()
+        );
+
+        if ($returnResponse->isError()) {
+            throw $returnResponse->getThrownException();
+        }
+
+        return $returnResponse;
+    }
+
+    /**
+     * Prepares the request for sending to the client handler.
+     *
+     * @param ZaloRequest $request
+     *
+     * @return array
+     */
+    public function prepareUploadVideoRequestMessage(ZaloRequest $request) {
+        // If we're sending files they should be sent as multipart/form-data
+        $requestBody = $request->getMultipartBody();
+        $request->setHeaders([
+            'Content-Type' => 'multipart/form-data; boundary=' . $requestBody->getBoundary(),
+        ]);
+        return [
+            $request->getEndpoint(),
+            $request->getMethod(),
+            $request->getHeaders(),
+            $requestBody->getBody(),
+        ];
     }
 
     private function getParamsData(ZaloRequest $request) {
@@ -206,6 +262,26 @@ class ZaloClient {
             $mac = hash("sha256", utf8_encode($oaid . $orderid . $timestamp . $secret));
             $paramsResult = ['orderid' => $orderid,
                 'mac' => $mac];
+        } else if (isset($params['productid'])) {
+            $productId = $params['productid'];
+            $mac = hash("sha256", utf8_encode($oaid . $productId . $timestamp . $secret));
+            $paramsResult = ['productid' => $productId,
+                'mac' => $mac];
+        } else if (isset($params['media'])) {
+            $media = json_encode($params['media']);
+            $mac = hash("sha256", utf8_encode($oaid . $media . $timestamp . $secret));
+            $paramsResult = ['media' => $media,
+                'mac' => $mac];
+        } else if (isset($params['mediaid'])) {
+            $mediaId = $params['mediaid'];
+            $mac = hash("sha256", utf8_encode($oaid . $mediaId . $timestamp . $secret));
+            $paramsResult = ['mediaid' => $mediaId,
+                'mac' => $mac];
+        } else if (isset($params['token'])) {
+            $token = $params['token'];
+            $mac = hash("sha256", utf8_encode($oaid . $token . $timestamp . $secret));
+            $paramsResult = ['token' => $token,
+                'mac' => $mac];
         } else if (isset($params['data'])) {
             $data = json_encode($params['data']);
             $mac = hash("sha256", utf8_encode($oaid . $data . $timestamp . $secret));
@@ -216,6 +292,35 @@ class ZaloClient {
             $paramsResult = ['mac' => $mac];
         }
         $baseParams = ['oaid' => $oaid,
+            'timestamp' => $timestamp];
+        $paramsResult = array_merge($paramsResult, $baseParams);
+        return $paramsResult;
+    }
+
+    private function getParamsOAOnbehalf(ZaloRequest $request) {
+        $paramsResult = [];
+        $params = $request->getParams();
+        $timestamp = time();
+        $appid = $request->getApp()->getId();
+        $secret = $request->getApp()->getSecret();
+        $data = "";
+        if (isset($params['data'])) {
+            $params['data']['accessTok'] = $request->getAccessToken();
+            $data = json_encode($params['data']);
+            $mac = hash("sha256", utf8_encode($appid . $data . $timestamp . $secret));
+            $paramsResult = ['data' => $data,
+                'mac' => $mac];
+        } else {
+            $accessToken = array(
+                'accessTok' => $request->getAccessToken()
+            );
+            $params = ['data' => $accessToken];
+            $data = json_encode($params['data']);
+            $mac = hash("sha256", utf8_encode($appid . $data . $timestamp . $secret));
+            $paramsResult = ['data' => $data,
+                'mac' => $mac];
+        }
+        $baseParams = ['appid' => $appid,
             'timestamp' => $timestamp];
         $paramsResult = array_merge($paramsResult, $baseParams);
         return $paramsResult;

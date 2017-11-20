@@ -81,8 +81,9 @@ class ZaloRequest
      * @param string|null             $eTag
      * @param string|null             $graphVersion
      */
-    public function __construct(ZaloApp $app = null, ZaloOA $oaInfo = null, $accessToken = null, $method = null, $endpoint = null, array $params = [], $eTag = null, $apiType = null)
+    public function __construct(ZaloApp $app = null, ZaloOA $oaInfo = null, $accessToken = null, $method = null, $endpoint = null, array $params = [], $eTag = null)
     {
+        $zaloApiType = ZaloAPIManager::getInstance()->getMapEndPoint()[$endpoint];
         $this->setApp($app);
         $this->setOAInfo($oaInfo);
         $this->setAccessToken($accessToken);
@@ -90,7 +91,7 @@ class ZaloRequest
         $this->setEndpoint($endpoint);
         $this->setParams($params);
         $this->setETag($eTag);
-        $this->setApiType($apiType);
+        $this->setApiType($zaloApiType);
     }
 
     /**
@@ -463,7 +464,6 @@ class ZaloRequest
     public function getUrlEncodedBody()
     {
         $params = $this->getPostParams();
-
         return new RequestBodyUrlEncoded($params);
     }
 
@@ -477,7 +477,7 @@ class ZaloRequest
         $params = $this->params;
 
         $accessToken = $this->getAccessToken();
-        if ($accessToken) {
+        if ($accessToken && $this->getApiType() !== Zalo::API_TYPE_OA_ONBEHALF) {
             $params['access_token'] = $accessToken;
         }
 
