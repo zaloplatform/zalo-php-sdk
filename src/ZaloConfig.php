@@ -1,12 +1,15 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo;
+
 /**
- * 
+ * Class ZaloConfig
+ *
+ * @package Zalo
  */
 class ZaloConfig {
 

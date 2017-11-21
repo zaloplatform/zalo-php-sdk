@@ -1,7 +1,7 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo;
@@ -9,6 +9,11 @@ namespace Zalo;
 use Zalo\Authentication\AccessToken;
 use Zalo\Exceptions\ZaloSDKException;
 
+/**
+ * Class ZaloApp
+ *
+ * @package Zalo
+ */
 class ZaloApp implements \Serializable
 {
     /**

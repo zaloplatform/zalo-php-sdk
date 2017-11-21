@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v1.0.0)
+# Zalo SDK for PHP (v1.0.2)
 
 ## Installation
 

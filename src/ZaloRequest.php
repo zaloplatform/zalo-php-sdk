@@ -1,8 +1,9 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
+
 namespace Zalo;
 
 use Zalo\Authentication\AccessToken;

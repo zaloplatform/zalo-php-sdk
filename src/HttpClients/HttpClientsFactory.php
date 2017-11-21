@@ -1,13 +1,18 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo\HttpClients;
 
 use Zalo\HttpClients\ZaloCurlHttpClient;
 
+/**
+ * Class HttpClientsFactory
+ *
+ * @package Zalo
+ */
 class HttpClientsFactory {
 
     private function __construct() {

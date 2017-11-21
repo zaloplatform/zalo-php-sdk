@@ -1,12 +1,18 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
+
 namespace Zalo;
 
 use Zalo\Exceptions\ZaloSDKException;
 
+/**
+ * Class ZaloOA
+ *
+ * @package Zalo
+ */
 class ZaloOA implements \Serializable
 {
     /**

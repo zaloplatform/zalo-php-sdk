@@ -1,7 +1,7 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo\Http;

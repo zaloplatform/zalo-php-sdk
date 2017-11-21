@@ -1,7 +1,7 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo;
@@ -18,12 +18,17 @@ use Zalo\ZaloOA;
 use Zalo\ZaloClient;
 use Zalo\ZaloRequest;
 
+/**
+ * Class Zalo
+ *
+ * @package Zalo
+ */
 class Zalo
 {
     /**
      * @const string Version number of the Zalo PHP SDK.
      */
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.2';
     /**
      * @const string Default Graph API version for requests.
      */

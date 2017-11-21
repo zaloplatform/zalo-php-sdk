@@ -1,7 +1,7 @@
 <?php
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo\HttpClients;
@@ -10,6 +10,11 @@ use Zalo\Http\GraphRawResponse;
 use Zalo\Exceptions\ZaloSDKException;
 use Zalo\HttpClients\ZaloHttpClientInterface;
 
+/**
+ * Class ZaloStreamHttpClient
+ *
+ * @package Zalo
+ */
 class ZaloStreamHttpClient implements ZaloHttpClientInterface
 {
     /**

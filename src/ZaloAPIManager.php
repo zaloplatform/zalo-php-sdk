@@ -1,8 +1,7 @@
 <?php
-
 /**
- * 
- * @author : linhndh
+ * Zalo © 2017
+ *
  */
 
 namespace Zalo;
@@ -10,6 +9,11 @@ namespace Zalo;
 use Zalo\Zalo;
 use Zalo\ZaloEndpoint;
 
+/**
+ * Class ZaloAPIManager
+ *
+ * @package Zalo
+ */
 class ZaloAPIManager {
 
     protected $MapEndpointApi;
