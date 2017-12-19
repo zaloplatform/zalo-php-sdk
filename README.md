@@ -1,4 +1,5 @@
 # Zalo SDK for PHP (v1.0.2)
+[![Build Status](https://travis-ci.org/zaloplatform/zalo-php-sdk.svg?branch=master)](https://travis-ci.org/zaloplatform/zalo-php-sdk)
 
 ## Installation
 
