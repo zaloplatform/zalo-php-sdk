@@ -49,7 +49,31 @@ class ZaloEndpoint {
     const API_GRAPH_MESSAGE = '/me/message';
 
     /* --------------------------------------------------------------------------------------------------- */
-
+    /**
+     * @const 
+     */
+    const API_OA_SEND_FOLLOW_MSG = '/sendmessage/phone/invite';
+    
+    /**
+     * @const 
+     */
+    const API_OA_GET_LIST_TAG = '/tag/gettagsofoa';
+    
+    /**
+     * @const 
+     */
+    const API_OA_REMOVE_TAG = '/tag/rmtag';
+    
+    /**
+     * @const 
+     */
+    const API_OA_REMOVE_USER_FROM_TAG = '/tag/rmfollowerfromtag';
+    
+    /**
+     * @const 
+     */
+    const API_OA_TAG_USER = '/tag/tagfollower';
+    
     /**
      * @const 
      */
@@ -212,6 +236,41 @@ class ZaloEndpoint {
     /**
      * @const 
      */
+    const API_OA_STORE_UPDATE_VARIATION = '/store/product/updatevariation';
+    
+    /**
+     * @const 
+     */
+    const API_OA_STORE_ADD_VARIATION = '/store/product/addvariation';
+    
+    /**
+     * @const 
+     */
+    const API_OA_STORE_GET_SLICE_ATTRIBUTE = '/store/product/getattrofoa';
+    
+    /**
+     * @const 
+     */
+    const API_OA_STORE_UPDATE_ATTRIBUTE = '/store/product/updateattr';
+    
+    /**
+     * @const 
+     */
+    const API_OA_STORE_CREATE_ATTRIBUTE = 'store/product/createattr';
+    
+    /**
+     * @const 
+     */
+    const API_OA_STORE_GET_SLICE_ATTRIBUTE_TYPE = '/store/product/getattrtypeofoa';
+    
+    /**
+     * @const 
+     */
+    const API_OA_STORE_GET_ATTRIBUTE_INFO = '/store/product/mgetattr';
+    
+    /**
+     * @const 
+     */
     const API_OA_STORE_CREATE_PRODUCT = '/store/product/create';
 
     /**
@@ -353,6 +412,18 @@ class ZaloEndpoint {
 
     /* --------------------------------------------------------------------------------------------------- */
 
+    /**
+     * @const 
+     */
+    const API_OA_ARTICLE_CREATE_VIDEO = '/media/video/create';
+    /**
+     * @const 
+     */
+    const API_OA_ARTICLE_UPDATE_VIDEO = '/media/video/update';
+    /**
+     * @const 
+     */
+    const API_OA_ARTICLE_GET_SLICE_VIDEO = '/media/video/getslice';
     /**
      * @const 
      */

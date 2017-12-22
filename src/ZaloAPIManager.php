@@ -43,6 +43,11 @@ class ZaloAPIManager {
             ZaloEndpoint::API_GRAPH_ME => Zalo::API_TYPE_GRAPH,
             ZaloEndpoint::API_GRAPH_MESSAGE => Zalo::API_TYPE_GRAPH,
             ZaloEndpoint::API_GRAPH_POST_FEED => Zalo::API_TYPE_GRAPH,
+            ZaloEndpoint::API_OA_SEND_FOLLOW_MSG => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_GET_LIST_TAG => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_REMOVE_TAG => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_REMOVE_USER_FROM_TAG => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_TAG_USER => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_CREATE_QR_CODE => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_GET_MSG_STATUS => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_GET_PROFILE => Zalo::API_TYPE_OA,
@@ -59,7 +64,13 @@ class ZaloAPIManager {
             ZaloEndpoint::API_OA_SEND_TEXT_MSG => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_UPLOAD_GIF => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_UPLOAD_PHOTO => Zalo::API_TYPE_OA,
-            ZaloEndpoint::API_OA_STORE_CREATE_CATEGORY => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_CREATE_ATTRIBUTE => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_UPDATE_ATTRIBUTE => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_GET_SLICE_ATTRIBUTE => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_GET_SLICE_ATTRIBUTE_TYPE => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_UPDATE_VARIATION => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_ADD_VARIATION => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_GET_ATTRIBUTE_INFO => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_CREATE_PRODUCT => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_GET_ORDER => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_GET_PRODUCT => Zalo::API_TYPE_OA,
@@ -111,7 +122,10 @@ class ZaloAPIManager {
             ZaloEndpoint::API_OA_ARTICLE_UPDATE_MEDIA => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_ARTICLE_REMOVE_MEDIA => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_ARTICLE_GET_SLICE_MEDIA => Zalo::API_TYPE_OA,
-            ZaloEndpoint::API_OA_ARTICLE_BROADCAST_MEDIA => Zalo::API_TYPE_OA
+            ZaloEndpoint::API_OA_ARTICLE_BROADCAST_MEDIA => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_ARTICLE_CREATE_VIDEO => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_ARTICLE_UPDATE_VIDEO => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_ARTICLE_GET_SLICE_VIDEO => Zalo::API_TYPE_OA
         );
     }
 

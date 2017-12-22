@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v1.0.2)
+# Zalo SDK for PHP (v1.0.3)
 
 ## Installation
 
@@ -112,6 +112,61 @@ $result = $response->getDecodedBody(); // result
 ```
 
 ## Official Account Open API
+**Gửi tin nhắn mời quan tâm**
+```php
+$templateData = array(
+    'template_key' => "template_value"
+);
+$data = array(
+    'phone' => 84912345678,
+    'templateid' => "put_template_id_here",
+    'templatedata' => $templateData,
+    'callbackdata' => "put_your_call_back_link_here"
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_SEND_FOLLOW_MSG, $params);
+$result = $response->getDecodedBody();
+```
+
+**Lấy danh sách nhãn**
+```php
+$params = [];
+$response = $zalo->get(ZaloEndpoint::API_OA_GET_LIST_TAG, $params);
+$result = $response->getDecodedBody();
+```
+
+**Xóa nhãn**
+```php
+$data = array(
+    'tagName' => "put_tag_name_here"
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_REMOVE_TAG, $params);
+$result = $response->getDecodedBody();
+```
+
+**Gỡ người quan tâm khỏi nhãn**
+```php
+$data = array(
+    'uid' => 0,
+    'tagName' => "put_tag_name_here"
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_REMOVE_USER_FROM_TAG, $params);
+$result = $response->getDecodedBody();
+```
+
+**Gán nhãn người quan tâm**
+```php
+$data = array(
+    'uid' => 0,
+    'tagName' => "put_tag_name_here"
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_TAG_USER, $params);
+$result = $response->getDecodedBody();
+```
+
 **Gửi tin nhắn text**
 ```php
 $data = array(
@@ -531,6 +586,100 @@ $result = $response->getDecodedBody(); // result
 ```
 
 ## Store API
+**Chỉnh sửa variation**
+```php
+$variation = array(
+    'variationid' => "put_variation_id_here",
+    'default' => 1, // 1 (enable), 2 (disable)
+    'price' => 0.5,
+    'name' => "put_variation_name_here",
+    'status' => 2  // 2: Enable, 3: Disable
+);
+$data = array(
+    'variation' => $variation
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_STORE_UPDATE_VARIATION, $params);
+$result = $response->getDecodedBody();
+```
+
+**Thêm variation vào sản phẩm**
+```php
+$variationOne = array(
+    'default' => 1, // 1 (enable), 2 (disable)
+    'price' => 4,
+    'name' => "put_variation_name_here",
+    'attributes' => ["put_attribute_id_x1_here", "put_attribute_id_x2_here", "put_attribute_id_x3_here", "put_attribute_id_x4_here"]
+);
+$variationTwo = array(
+    'default' => 2,
+    'price' => 5,
+    'name' => "put_variation_name_here",
+    'attributes' => ["put_attribute_id_y1_here", "put_attribute_id_y2_here", "put_attribute_id_y3_here", "put_attribute_id_y4_here"]
+);
+$data = array(
+    'productid' => "put_product_id_here",
+    'variations' => [$variationOne, $variationTwo]
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_STORE_ADD_VARIATION, $params);
+$result = $response->getDecodedBody();
+```
+
+**Lấy thông tin thuộc tính sản phẩm**
+```php
+$data = array(
+    'attributeids' => ["put_attribute_id_1_here", "put_attribute_id_2_here"]
+);
+$params = ['data' => $data];
+$response = $zalo->get(ZaloEndpoint::API_OA_STORE_GET_ATTRIBUTE_INFO, $params);
+$result = $response->getDecodedBody();
+```
+
+**Lấy danh sách thuộc tính sản phẩm**
+```php
+$data = array(
+    'offset' => 0,
+    'count' => 10
+);
+$params = ['data' => $data];
+$response = $zalo->get(ZaloEndpoint::API_OA_STORE_GET_SLICE_ATTRIBUTE, $params);
+$result = $response->getDecodedBody();
+```
+
+**Chỉnh sửa thuộc tính sản phẩm**
+```php
+$data = array(
+    'attributeid' => "put_attribute_id_here",
+    'name' => "put_attribute_name_here"
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_STORE_UPDATE_ATTRIBUTE, $params);
+$result = $response->getDecodedBody();
+```
+
+**Tạo thuộc tính sản phẩm**
+```php
+$data = array(
+    'name' => "put_attribute_name_here",
+    'type' => "put_attribute_type_id_here" // get from end point -> ZaloEndpoint::API_OA_STORE_GET_SLICE_ATTRIBUTE_TYPE
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_STORE_CREATE_ATTRIBUTE, $params);
+$result = $response->getDecodedBody();
+```
+
+**Lấy danh sách kiểu thuộc tính**
+```php
+$data = array(
+    'offset' => 0,
+    'count' => 10
+);
+$params = ['data' => $data];
+$response = $zalo->get(ZaloEndpoint::API_OA_STORE_GET_SLICE_ATTRIBUTE_TYPE, $params);
+$result = $response->getDecodedBody();
+```
+
 **Tạo sản phẩm**
 ```php
 $cate = array('cateid' => 'put_your_cate_id_here');
@@ -1088,9 +1237,60 @@ $responseStepFour = $zalo->get(ZaloEndpoint::API_OA_ARTICLE_GET_VIDEO_STATUS, $p
 $resultStepFour = $responseStepFour->getDecodedBody(); // result
 ```
 
+**Lấy danh sách bài viết video**
+```php
+$data = array(
+    'offset' => 0,
+    'count' => 10
+);
+$params = ['data' => $data];
+$response = $zalo->get(ZaloEndpoint::API_OA_ARTICLE_GET_SLICE_VIDEO, $params);
+$result = $response->getDecodedBody();
+```
+
+**Chỉnh sửa bài viết video**
+```php
+$relatedArticle = array(
+    'id' => 'put_related_article_id_here'
+);
+$media = array(
+    'title' => 'update_video_article',
+    'desc' => 'put_description_here',
+    'avatar' => 'put_avatar_here',
+    'videoId' => 'put_video_id_here',
+    'relatedMedias' => [$relatedArticle],
+    'status' => 'show'
+);
+$data = array(
+    'mediaid' => 'put_media_id_here',
+    'media' => $media
+);
+$params = ['data' => $data];
+$response = $zalo->post(ZaloEndpoint::API_OA_ARTICLE_UPDATE_VIDEO, $params);
+$result = $response->getDecodedBody();
+```
+
+**Tạo bài viết video**
+```php
+$relatedArticle = array(
+    'id' => 'put_related_article_id_here'
+);
+$media = array(
+    'title' => 'create_video_article',
+    'desc' => 'put_description_here',
+    'avatar' => 'put_avatar_here',
+    'videoId' => 'put_video_id_here',
+    'relatedMedias' => [$relatedArticle],
+    'status' => 'show'
+);
+$params = ['media' => $media];
+$response = $zalo->post(ZaloEndpoint::API_OA_ARTICLE_CREATE_VIDEO, $params);
+$result = $response->getDecodedBody();
+```
+
 ## Versioning
 
-Current version is 1.0.0. We will update more features in next version.
+Current version is 1.0.3. We will update more features in next version.
 
 ## Authors
 
@@ -1098,4 +1298,4 @@ Current version is 1.0.0. We will update more features in next version.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License.

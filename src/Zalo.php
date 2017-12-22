@@ -28,7 +28,7 @@ class Zalo
     /**
      * @const string Version number of the Zalo PHP SDK.
      */
-    const VERSION = '1.0.2';
+    const VERSION = '1.0.3';
     /**
      * @const string Default Graph API version for requests.
      */
