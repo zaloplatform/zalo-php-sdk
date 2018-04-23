@@ -154,6 +154,11 @@ class ZaloEndpoint {
      */
     const API_OA_CREATE_QR_CODE = '/qrcode';
 
+    /**
+     * @const 
+     */
+    const API_OA_GET_FOLLOWERS_LIST = '/getfollowers';
+
     /* --------------------------------------------------------------------------------------------------- */
 
     /**

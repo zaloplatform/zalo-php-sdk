@@ -126,7 +126,8 @@ class ZaloAPIManager {
             ZaloEndpoint::API_OA_ARTICLE_BROADCAST_MEDIA => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_ARTICLE_CREATE_VIDEO => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_ARTICLE_UPDATE_VIDEO => Zalo::API_TYPE_OA,
-            ZaloEndpoint::API_OA_ARTICLE_GET_SLICE_VIDEO => Zalo::API_TYPE_OA
+            ZaloEndpoint::API_OA_ARTICLE_GET_SLICE_VIDEO => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_GET_FOLLOWERS_LIST => Zalo::API_TYPE_OA
         );
     }
 
