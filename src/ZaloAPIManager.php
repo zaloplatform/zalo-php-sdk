@@ -71,6 +71,7 @@ class ZaloAPIManager {
             ZaloEndpoint::API_OA_STORE_UPDATE_VARIATION => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_ADD_VARIATION => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_GET_ATTRIBUTE_INFO => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_STORE_CREATE_CATEGORY => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_CREATE_PRODUCT => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_GET_ORDER => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_STORE_GET_PRODUCT => Zalo::API_TYPE_OA,
