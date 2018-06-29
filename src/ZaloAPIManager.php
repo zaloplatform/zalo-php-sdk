@@ -51,6 +51,7 @@ class ZaloAPIManager {
             ZaloEndpoint::API_OA_CREATE_QR_CODE => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_GET_MSG_STATUS => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_GET_PROFILE => Zalo::API_TYPE_OA,
+            ZaloEndpoint::API_OA_UPDATE_FOLLOWER_INFO => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_SEND_CUSTOMER_CARE_MSG => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_SEND_CUSTOMER_CARE_MSG_BY_PHONE => Zalo::API_TYPE_OA,
             ZaloEndpoint::API_OA_REPLY_LINK_MSG => Zalo::API_TYPE_OA,

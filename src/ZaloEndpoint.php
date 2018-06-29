@@ -73,6 +73,11 @@ class ZaloEndpoint {
      * @const 
      */
     const API_OA_TAG_USER = '/tag/tagfollower';
+
+    /**
+     * @const 
+     */
+    const API_OA_UPDATE_FOLLOWER_INFO = '/updatefollowerinfo';
     
     /**
      * @const 
