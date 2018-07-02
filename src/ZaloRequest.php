@@ -9,6 +9,7 @@ namespace Zalo;
 use Zalo\Authentication\AccessToken;
 use Zalo\Url\ZaloUrlManipulator;
 use Zalo\Http\RequestBodyUrlEncoded;
+use Zalo\Http\RequestBodyRaw;
 use Zalo\Http\RequestBodyMultipart;
 use Zalo\Exceptions\ZaloSDKException;
 use Zalo\FileUpload\ZaloFile;
@@ -21,16 +22,6 @@ use Zalo\FileUpload\ZaloFile;
 class ZaloRequest
 {
     /**
-     * @var ZaloApp The Zalo app entity.
-     */
-    protected $app;
-    
-    /**
-     * @var ZaloOA The Zalo Offical Account entity.
-     */
-    protected $oaInfo;
-
-    /**
      * @var string|null The access token to use for this request.
      */
     protected $accessToken;
@@ -41,9 +32,9 @@ class ZaloRequest
     protected $method;
 
     /**
-     * @var string The Graph endpoint for this request.
+     * @var string The url for this request.
      */
-    protected $endpoint;
+    protected $url;
 
     /**
      * @var array The headers to send with this request.
@@ -64,35 +55,23 @@ class ZaloRequest
      * @var string ETag to send with this request.
      */
     protected $eTag;
-    
-    /**
-     * @var string API Type : OAUTH = 0 | GRAPH = 1 | OA = 2
-     */
-    protected $apiType;
-
 
     /**
      * Creates a new Request entity.
      *
-     * @param ZaloApp|null        $app
      * @param AccessToken|string|null $accessToken
      * @param string|null             $method
-     * @param string|null             $endpoint
+     * @param string|null             $url
      * @param array|null              $params
      * @param string|null             $eTag
-     * @param string|null             $graphVersion
      */
-    public function __construct(ZaloApp $app = null, ZaloOA $oaInfo = null, $accessToken = null, $method = null, $endpoint = null, array $params = [], $eTag = null)
+    public function __construct($accessToken = null, $method = null, $url = null, array $params = [], $eTag = null)
     {
-        $zaloApiType = ZaloAPIManager::getInstance()->getMapEndPoint()[$endpoint];
-        $this->setApp($app);
-        $this->setOAInfo($oaInfo);
         $this->setAccessToken($accessToken);
         $this->setMethod($method);
-        $this->setEndpoint($endpoint);
+        $this->setUrl($url);
         $this->setParams($params);
         $this->setETag($eTag);
-        $this->setApiType($zaloApiType);
     }
 
     /**
@@ -154,66 +133,6 @@ class ZaloRequest
     }
 
     /**
-     * Set the ZaloApp entity used for this request.
-     *
-     * @param ZaloApp|null $app
-     */
-    public function setApp(ZaloApp $app = null)
-    {
-        $this->app = $app;
-    }
-
-    /**
-     * Return the ZaloApp entity used for this request.
-     *
-     * @return ZaloApp
-     */
-    public function getApp()
-    {
-        return $this->app;
-    }
-    
-    /**
-     * Set the ZaloOA entity used for this request.
-     *
-     * @param ZaloOA|null $app
-     */
-    public function setOAInfo(ZaloOA $oa = null)
-    {
-        $this->oaInfo = $oa;
-    }
-
-    /**
-     * Return the ZaloApp entity used for this request.
-     *
-     * @return ZaloOA
-     */
-    public function getOAInfo()
-    {
-        return $this->oaInfo;
-    }
-    
-    /**
-     * Set the API Type for this request.
-     *
-     * @param apiType|null $apiType
-     */
-    public function setApiType($apiType = null)
-    {
-        $this->apiType = $apiType;
-    }
-
-    /**
-     * Return the API Type for this request.
-     *
-     * @return apiType
-     */
-    public function getApiType()
-    {
-        return $this->apiType;
-    }
-
-    /**
      * Generate an app secret proof to sign this request.
      *
      * @return string|null
@@ -271,13 +190,13 @@ class ZaloRequest
             throw new ZaloSDKException('HTTP method not specified.');
         }
 
-        if (!in_array($this->method, ['GET', 'POST', 'DELETE'])) {
+        if (!in_array($this->method, ['GET', 'POST'])) {
             throw new ZaloSDKException('Invalid HTTP method specified.');
         }
     }
 
     /**
-     * Set the endpoint for this request.
+     * Set the url for this request.
      *
      * @param string
      *
@@ -285,30 +204,19 @@ class ZaloRequest
      *
      * @throws ZaloSDKException
      */
-    public function setEndpoint($endpoint)
+    public function setUrl($url)
     {
-        // Harvest the access token from the endpoint to keep things in sync
-        $params = ZaloUrlManipulator::getParamsAsArray($endpoint);
+        // Harvest the access token from the url to keep things in sync
+        $params = ZaloUrlManipulator::getParamsAsArray($url);
         if (isset($params['access_token'])) {
             $this->setAccessTokenFromParams($params['access_token']);
         }
 
-        // Clean the token & app secret proof from the endpoint.
+        // Clean the token & app secret proof from the url.
         $filterParams = ['access_token', 'appsecret_proof'];
-        $this->endpoint = ZaloUrlManipulator::removeParamsFromUrl($endpoint, $filterParams);
+        $this->url = ZaloUrlManipulator::removeParamsFromUrl($url, $filterParams);
         
         return $this;
-    }
-
-    /**
-     * Return the endpoint for this request.
-     *
-     * @return string
-     */
-    public function getEndpoint()
-    {
-        // For batch requests, this will be empty
-        return $this->endpoint;
     }
 
     /**
@@ -366,7 +274,6 @@ class ZaloRequest
         unset($params['access_token']);
 
         // @TODO Refactor code above with this
-        //$params = $this->sanitizeAuthenticationParams($params);
         $params = $this->sanitizeFileParams($params);
         $this->dangerouslySetParams($params);
 
@@ -383,7 +290,9 @@ class ZaloRequest
     public function dangerouslySetParams(array $params = [])
     {
         $this->params = array_merge($this->params, $params);
-
+        if ($this->containsFileUploads()) {
+            $this->params["access_token"] = $this->accessToken;
+        }
         return $this;
     }
 
@@ -453,7 +362,6 @@ class ZaloRequest
     public function getMultipartBody()
     {
         $params = $this->getPostParams();
-
         return new RequestBodyMultipart($params, $this->files);
     }
 
@@ -469,6 +377,17 @@ class ZaloRequest
     }
 
     /**
+     * Returns the body of the request as URL-encoded.
+     *
+     * @return RequestBodyRaw
+     */
+    public function getRawBody()
+    {
+        $params = $this->getPostParams();
+        return new RequestBodyRaw($params);
+    }
+
+    /**
      * Generate and return the params for this request.
      *
      * @return array
@@ -478,10 +397,7 @@ class ZaloRequest
         $params = $this->params;
 
         $accessToken = $this->getAccessToken();
-        if ($accessToken && $this->getApiType() !== Zalo::API_TYPE_OA_ONBEHALF) {
-            $params['access_token'] = $accessToken;
-        }
-
+        // $params['access_token'] = $accessToken;
         return $params;
     }
 
@@ -495,7 +411,6 @@ class ZaloRequest
         if ($this->getMethod() === 'POST') {
             return $this->getParams();
         }
-
         return [];
     }
 
@@ -507,22 +422,14 @@ class ZaloRequest
     public function getUrl()
     {
         $this->validateMethod();
-        $version = "";
-        if ($this->getApiType() == Zalo::API_TYPE_AUTHEN) {
-            $version = Zalo::DEFAULT_OAUTH_VERSION;
-        } else if ($this->getApiType() == Zalo::API_TYPE_GRAPH) {
-            $version = Zalo::DEFAULT_GRAPH_VERSION;
-        } else {
-            $version = Zalo::DEFAULT_OA_VERSION;
-        }
-        $version = ZaloUrlManipulator::forceSlashPrefix($version);
-        $endpoint = ZaloUrlManipulator::forceSlashPrefix($this->getEndpoint());
-
-        $url = $version . $endpoint;
-
+        $url = $this->url;
         if ($this->getMethod() !== 'POST') {
             $params = $this->getParams();
             $url = ZaloUrlManipulator::appendParamsToUrl($url, $params);
+        }
+        if (!$this->containsFileUploads()) {
+            $p = ["access_token" => $this->getAccessToken()];
+            $url = ZaloUrlManipulator::appendParamsToUrl($url, $p);
         }
         return $url;
     }
