@@ -162,7 +162,7 @@ class ZaloResponse
      */
     public function isError()
     {
-        return isset($this->decodedBody['error']) && $this->decodedBody['error'] != 0;
+        return isset($this->decodedBody['error']) && $this->decodedBody['error'] < 0;
     }
 
     /**

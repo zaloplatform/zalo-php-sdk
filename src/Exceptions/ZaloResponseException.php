@@ -14,6 +14,7 @@ use Zalo\Exceptions\ZaloClientException;
 use Zalo\Exceptions\ZaloServerException;
 use Zalo\Exceptions\ZaloOtherException;
 use Zalo\Exceptions\ZaloResponseException;
+use Zalo\Exceptions\ZaloOAException;
 
 /**
  * Class ZaloResponseException
@@ -153,7 +154,7 @@ class ZaloResponseException extends ZaloSDKException {
         }
         
         // All others
-        return new static($response, new ZaloOtherException($message, $code));
+        //return new static($response, new ZaloOtherException($message, $code));
     }
 
     /**
