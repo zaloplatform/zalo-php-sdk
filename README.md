@@ -1,6 +1,6 @@
 # Zalo SDK for PHP (v1.0.3)
 
-A SDK for building Chatbot, Community, Shop and Article on Zalo Platform.
+A SDK for building Chatbot, Shop, Article, Social API, Login, Official Account messsage, Official Account Follower Managed... on Zalo Platform.
 
 
 Landing page: <a href="https://developers.zalo.me/">https://developers.zalo.me/</a><br>
