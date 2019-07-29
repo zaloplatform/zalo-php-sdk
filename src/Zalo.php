@@ -1,12 +1,14 @@
 <?php
 /**
- * Zalo © 2017
+ * Zalo © 2019
  *
  */
 
 namespace Zalo;
 
 use Zalo\Authentication\AccessToken;
+use Zalo\Authentication\OAuth2Client;
+use Zalo\Authentication\ZaloRedirectLoginHelper;
 use Zalo\Url\UrlDetectionInterface;
 use Zalo\Url\ZaloUrlDetectionHandler;
 use Zalo\HttpClients\HttpClientsFactory;
@@ -30,6 +32,10 @@ class Zalo
      */
     protected $client;
     /**
+     * @var ZaloApp The ZaloApp entity.
+     */
+    protected $app;
+    /**
      * @var UrlDetectionInterface|null The URL detection handler.
      */
     protected $urlDetectionHandler;
@@ -41,6 +47,10 @@ class Zalo
      * @var ZaloResponse|ZaloBatchResponse|null Stores the last request made to Graph.
      */
     protected $lastResponse;
+    /**
+     * @var OAuth2Client The OAuth 2.0 client service.
+     */
+    protected $oAuth2Client;
     
     /**
      * Instantiates a new Zalo super-class object.
@@ -60,19 +70,11 @@ class Zalo
             HttpClientsFactory::createHttpClient($config['http_client_handler']),
             $config['enable_beta_mode']
         );
+        $this->app = new ZaloApp($config['app_id'], $config['app_secret'], $config['callback_url']);
         $this->setUrlDetectionHandler($config['url_detection_handler'] ?: new ZaloUrlDetectionHandler());
         if (isset($config['default_access_token'])) {
             $this->setDefaultAccessToken($config['default_access_token']);
         }
-    }
-    /**
-     * Returns the ZaloClient service.
-     *
-     * @return ZaloClient
-     */
-    public function getClient()
-    {
-        return $this->client;
     }
     /**
      * Returns the last response returned from Graph.
@@ -276,5 +278,49 @@ class Zalo
             $eTag
         );
         return $request;
+    }
+    /**
+     * Returns the ZaloApp entity.
+     *
+     * @return ZaloApp
+     */
+    public function getApp()
+    {
+        return $this->app;
+    }
+    /**
+     * Returns the ZaloClient service.
+     *
+     * @return ZaloClient
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+    /**
+     * Returns the OAuth 2.0 client service.
+     *
+     * @return OAuth2Client
+     */
+    public function getOAuth2Client()
+    {
+        if (!$this->oAuth2Client instanceof OAuth2Client) {
+            $app = $this->getApp();
+            $client = $this->getClient();
+            $this->oAuth2Client = new OAuth2Client($app, $client);
+        }
+        return $this->oAuth2Client;
+    }
+    /**
+     * Returns Login helper.
+     *
+     * @return ZaloRedirectLoginHelper
+     */
+    public function getRedirectLoginHelper()
+    {
+        return new ZaloRedirectLoginHelper(
+            $this->getOAuth2Client(),
+            $this->urlDetectionHandler
+        );
     }
 }

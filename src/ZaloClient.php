@@ -1,6 +1,6 @@
 <?php
 /**
- * Zalo © 2017
+ * Zalo © 2019
  *
  */
 
@@ -99,7 +99,7 @@ class ZaloClient {
             $request->setHeaders([
                 'Content-Type' => 'multipart/form-data; boundary=' . $requestBody->getBoundary(),
             ]);
-        } else if ($request->getMethod() === 'GET') {
+        } else if ($request->getMethod() === 'GET' || $request->isGraph() === true) {
             $requestBody = $request->getUrlEncodedBody();
             $request->setHeaders([
                 'Content-Type' => 'application/x-www-form-urlencoded',
@@ -131,7 +131,6 @@ class ZaloClient {
         $request->validateAccessToken();
 
         list($url, $method, $headers, $body) = $this->prepareRequestMessage($request);
-        
         // Since file uploads can take a while, we need to give more time for uploads
         $timeOut = static::DEFAULT_REQUEST_TIMEOUT;
 

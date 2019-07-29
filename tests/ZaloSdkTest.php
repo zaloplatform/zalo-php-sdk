@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Zalo;
 
 use Zalo\Authentication\AccessToken;
@@ -38,14 +32,14 @@ use Zalo\Zalo;
 use Zalo\ZaloClient;
 use Zalo\ZaloRequest;
 use Zalo\ZaloResponse;
-use Zalo\ZaloConfig;
+use Zalo\Builder\MessageBuilder;
+use Zalo\ZaloEndPoint;
 
 class ZaloSdkTest {
 
     protected static $instance;
     protected $zalo;
     protected $helper;
-    protected $accessTok;
 
     /**
      * Get a singleton instance of the class
@@ -63,10 +57,10 @@ class ZaloSdkTest {
 
     public function __construct() {
 
-        $app_id = "960183778787479128";
-        $app_secret = "coLo667bj6S0LBd57TOU";
-        $oa_id = "2491302944280861639";
-        $oa_secret = "Tb418kOM4WJLQzwYGqqw";
+        $app_id = "3651372925690900611";
+        $app_secret = "rbZ5wQ2tVUh7Y3y6Kxqe";
+        $oa_id = "3886132808798808645";
+        $oa_secret = "O44TuGPXY64JjCXDmDjQ";
 
         if (isset($_COOKIE['app_id'])) {
             $app_id = $_COOKIE['app_id'];
@@ -111,7 +105,7 @@ class ZaloSdkTest {
                     print_r($accessToken->getExpiresAt());
                 }
                 echo '</b><br>';
-                $this->accessTok = $accessToken;
+                $accessToken = $accessToken;
             } else {
                 echo "Cookie '" . $cookie_name . "' is set!<br>";
                 echo "Value is: " . $_COOKIE[$cookie_name] . "<br>";
@@ -136,29 +130,28 @@ class ZaloSdkTest {
         echo '<a href="/?sendapprequest=true">Send app request</a><br>';
         echo '<a href="/?sendmessage=true">Send message</a><br>';
         echo '=====================================<br>Offical Account API <br>';
-        echo '<a href="/?sendmessageoa=true">Send message OA</a><br>';
-        echo '<a href="/?sendimgmessageoa=true">Send image message OA</a><br>';
-        echo '<a href="/?sendlinkmessageoa=true">Send link message OA</a><br>';
-        echo '<a href="/?sendinteractionmessageoa=true">Send interaction message OA</a><br>';
-        echo '<a href="/?getprofileoa=true">Get profile user follow OA</a><br>';
+        
+        echo '<a href="/?getlisttag=true">Get list tag</a><br>';
+        echo '<a href="/?rmtag=true">Remove tag</a><br>';
+        echo '<a href="/?rmusrfrtag=true">Remove user from tag</a><br>';
+        echo '<a href="/?taguser=true">Tag user</a><br>';
+
+        echo '<a href="/?sendfollowmsg=true">Send message follow OA</a><br>';
+        echo '<a href="/?sendoatext=true">Send text message OA</a><br>';
+        echo '<a href="/?sendoaimage=true">Send image message OA</a><br>';
+        echo '<a href="/?sendoalist=true">Send list message OA</a><br>';
+        echo '<a href="/?sendoagif=true">Send gif message OA</a><br>';
+        echo '<a href="/?sendfile=true">Send file message OA</a><br>';
+
         echo '<a href="/?uploadimageoa=true">Upload image OA</a><br>';
-        echo '<a href="/?getmsgstatus=true">Get message status</a><br>';
-        echo '<a href="/?sendcsmsg=true">Send customer care message</a><br>';
-        echo '<a href="/?sendcsmsgviaphone=true">Send customer care message</a><br>';
-        echo '=====================================<br>Offical Account Store API <br>';
-        echo '<a href="/?getorderoa=true">Get list order OA</a><br>';
-        echo '<a href="/?createproduct=true">Create product OA</a><br>';
-        echo '<a href="/?updateproduct=true">Update product OA</a><br>';
-        echo '<a href="/?deleteproduct=true">Delete product OA</a><br>';
-        echo '<a href="/?getproductinfo=true">Get product info OA</a><br>';
-        echo '<a href="/?getlistproduct=true">Get list product OA</a><br>';
-        echo '<a href="/?uploadproductimg=true">Upload product image OA</a><br>';
-        echo '<a href="/?createcategory=true">Create category OA</a><br>';
-        echo '<a href="/?updatecategory=true">Update category OA</a><br>';
-        echo '<a href="/?getlistcate=true">Get list category OA</a><br>';
-        echo '<a href="/?uploadcateimg=true">Upload category image OA</a><br>';
-        echo '<a href="/?updateorder=true">Update order OA</a><br>';
-        echo '<a href="/?getorderinfo=true">Get order info OA</a><br>';
+        echo '<a href="/?uploadgifoa=true">Upload gif OA</a><br>';
+        echo '<a href="/?uploadfile=true">Upload file OA</a><br>';
+
+        echo '<a href="/?getprofileuseroa=true">Get profile user follow OA</a><br>';
+        echo '<a href="/?getprofileoa=true">Get profile OA </a><br>';
+        echo '<a href="/?getfollowers=true">Get followers</a><br>';
+        echo '<a href="/?listrecentchat=true">Get list recent chat</a><br>';
+        echo '<a href="/?conversation=true">Get conversation</a><br>';
     }
 
     function getMe() {
@@ -167,7 +160,7 @@ class ZaloSdkTest {
             echo "Cookie named '" . $cookie_name . "' is not set!";
         } else {
             $accessToken = $_COOKIE[$cookie_name];
-            $response = $this->zalo->get('/me', $accessToken, [], Zalo::API_TYPE_GRAPH);
+            $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_ME, $accessToken, ['fields' => 'id,name,birthday,gender,picture']);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -181,13 +174,13 @@ class ZaloSdkTest {
         } else {
             $accessToken = $_COOKIE[$cookie_name];
             $params = ['offset' => 0, 'limit' => 10, 'fields' => "id, name"];
-            $response = $this->zalo->get('/me/friends', $accessToken, $params, Zalo::API_TYPE_GRAPH);
+            $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_FRIENDS, $accessToken, $params);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
         }
     }
-    
+
     function getInvitableFiends() {
         $cookie_name = "access_token";
         if (!isset($_COOKIE[$cookie_name])) {
@@ -195,7 +188,7 @@ class ZaloSdkTest {
         } else {
             $accessToken = $_COOKIE[$cookie_name];
             $params = ['offset' => 0, 'limit' => 10, 'fields' => "id, name"];
-            $response = $this->zalo->get('/me/invitable_friends', $accessToken, $params, Zalo::API_TYPE_GRAPH);
+            $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_INVITABLE_FRIENDS, $accessToken, $params);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -209,7 +202,7 @@ class ZaloSdkTest {
         } else {
             $accessToken = $_COOKIE[$cookie_name];
             $params = ['message' => 'Zalo Developers', 'link' => 'https://developers.zalo.me'];
-            $response = $this->zalo->post('/me/feed', $accessToken, $params, Zalo::API_TYPE_GRAPH);
+            $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_POST_FEED, $accessToken, $params);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -223,7 +216,7 @@ class ZaloSdkTest {
         } else {
             $accessToken = $_COOKIE[$cookie_name];
             $params = ['message' => 'Test function moi su dung ung dung', 'to' => '6870335006918372741'];
-            $response = $this->zalo->post('/apprequests', $accessToken, $params, Zalo::API_TYPE_GRAPH);
+            $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_APP_REQUESTS, $accessToken, $params);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -237,102 +230,147 @@ class ZaloSdkTest {
         } else {
             $accessToken = $_COOKIE[$cookie_name];
             $params = ['message' => 'Test function gui tin qua OA', 'to' => '6870335006918372741', 'link' => 'https://developers.zalo.me'];
-            $response = $this->zalo->post('/me/message', $accessToken, $params, Zalo::API_TYPE_GRAPH);
+            $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_MESSAGE, $accessToken, $params);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
         }
     }
 
-    function sendOATextMessage() {
-        $data = array(
-            'uid' => 1785179753369910605,
-            'message' => 'Hello!@$#@+%^*+&^**()*&./\/++++'
+    function sendFollowRequestMessage($accessToken) {
+        $msgBuilder = new MessageBuilder('template');
+        $msgBuilder->withPhoneNumber('0919018791');
+        $templateData = array(
+            'customer_name' => 'Linh Nguyen',
+            'customer_address' => '997 cach mang thang 8',
+            'customer_code' => 'ABC000111',
+            'date' => '24/07/2019',
+            'power_used' => '1982 kWh',
+            'charge' => '5.000.000 vnd',
+            'payment_date' => '01/08/2019'
         );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/sendmessage/text', null, $params, Zalo::API_TYPE_OA);
+        $msgBuilder->withTemplate('87efbc018044691a3055', $templateData);
+        $msgInvite = $msgBuilder->build();
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgInvite);
         echo '<br><br>';
         print_r($response->getDecodedBody());
         echo '<br><br>';
     }
 
-    function sendOAImageMessage() {
-        try {
-            $data = array(
-                'uid' => 1785179753369910605,
-                'imageid' => '0564c1b560c78999d0d6',
-                'message' => 'Hello!@$#@+%^*+&^**()*&./\/++++'
-            );
-            $params = ['data' => $data];
-            $response = $this->zalo->post('/sendmessage/image', null, $params, Zalo::API_TYPE_OA);
-            echo '<br><br>';
-            print_r($response->getDecodedBody());
-            echo '<br><br>';
-        } catch (ZaloSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Zalo SDK returned an error: ' . $e->getMessage();
-            exit;
-        }
-    }
-
-    function sendOALinksMessage() {
-
-        $firstLink = array('link' => 'https://developers.zalo.me',
-            'linktitle' => 'Zalo for developers',
-            'linkdes' => 'Zalo for developer comunity',
-            'linkthumb' => 'https://cms.developers.zalo.me/wp-content/uploads/2017/06/Oauth2.jpg');
-        $secondLink = array('link' => 'https://developers.zalo.me/docs/',
-            'linktitle' => 'Documents for zalo developers',
-            'linkdes' => 'Zalo for developer comunity',
-            'linkthumb' => 'https://cms.developers.zalo.me/wp-content/uploads/2017/06/Oauth2.jpg');
-
-        $data = array(
-            'uid' => 1785179753369910605,
-            'links' => [$firstLink, $secondLink],
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/sendmessage/links', null, $params, Zalo::API_TYPE_OA);
+    function getListTag($accessToken) {
+        // goi api
+        $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_LIST_TAG, $accessToken, []);
         echo '<br><br>';
         print_r($response->getDecodedBody());
         echo '<br><br>';
     }
 
-    function sendOAInteractionMessage() {
-        $firstAction = array('action' => 'oa.query.show',
-            'title' => 'Say yes now !',
-            'description' => 'Test interaction message',
-            'data' => '#yes',
-            'href' => 'https://developers.zalo.me',
-            'thumb' => 'https://cms.developers.zalo.me/wp-content/uploads/2017/06/Oauth2.jpg');
+    function deleteTag($accessToken) {
+        $data = array('tag_name' => 'vip_user');
 
-        $popupForSecondAction = array('title' => 'Popup',
-            'desc' => 'Go to link right now ?',
-            'ok' => 'Accept',
-            'cancel' => 'Decline'
-        );
-        $secondAction = array('action' => 'oa.query.show',
-            'title' => 'Say no now !',
-            'description' => 'Test interaction message',
-            'data' => '#no',
-            'href' => 'https://developers.zalo.me',
-            'thumb' => 'https://cms.developers.zalo.me/wp-content/uploads/2017/06/Oauth2.jpg',
-            'popup' => $popupForSecondAction);
-
-        $data = array(
-            'uid' => 1785179753369910605,
-            'actionlist' => [$firstAction, $secondAction],
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/sendmessage/actionlist', null, $params, Zalo::API_TYPE_OA);
+        // goi api
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_REMOVE_TAG, $accessToken, $data);
         echo '<br><br>';
         print_r($response->getDecodedBody());
         echo '<br><br>';
     }
 
-    function getProfileUserFollowOA() {
+    function removeUserFromTag($accessToken) {
+        $data = array(
+            'user_id' => '494021888309207992',
+            'tag_name' => 'vip_user'
+        );
+
+        // goi api
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_REMOVE_USER_FROM_TAG, $accessToken, $data);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+    }
+
+    function tagUser($accessToken) {
+        $data = array(
+                'user_id' => '494021888309207992',
+                'tag_name' => 'vip_user'
+        );
+
+        // goi api
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_TAG_USER, $accessToken, $data);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+    }
+
+    function sendOATextMessage($accessToken) {
+            $msgBuilder = new MessageBuilder('text');
+            $msgBuilder->withUserId('494021888309207992');
+            $msgBuilder->withText('Message Text');
+            $msgText = $msgBuilder->build();
+
+            // goi api
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgText);
+            echo '<br><br>';
+            // lay du lieu tra ve
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+
+            $msgBuilder->withText('Message Text with Buttons');
+            $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://wwww.google.com');
+            $msgBuilder->withButton('Open Link', $actionOpenUrl);
+
+            $actionQueryShow = $msgBuilder->buildActionQueryShow('query_show');
+            $msgBuilder->withButton('Query Show', $actionQueryShow);
+
+            $actionQueryHide = $msgBuilder->buildActionQueryHide('query_hide');
+            $msgBuilder->withButton('Query Hide', $actionQueryHide);
+
+            $actionOpenPhone = $msgBuilder->buildActionOpenPhone('0919018791');
+            $msgBuilder->withButton('Open Phone', $actionOpenPhone);
+
+            $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
+            $msgBuilder->withButton('Open SMS', $actionOpenSMS);
+
+            $msgTextWithButton = $msgBuilder->build();
+            // goi api
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgTextWithButton);
+            echo '<br><br>';
+            // lay du lieu tra ve
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+    }
+
+    function sendOAImageMessage($accessToken) {
         try {
-            $params = ['uid' => 1785179753369910605];
-            $response = $this->zalo->get('/getprofile', null, $params, Zalo::API_TYPE_OA);
+            $msgBuilder = new MessageBuilder('media');
+            $msgBuilder->withUserId('494021888309207992');
+            $msgBuilder->withText('Message Image');
+            $msgBuilder->withAttachment('cb2ab1696b688236db79');
+            $msgImage = $msgBuilder->build();
+
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+
+            $msgBuilder->withText('Message Image with Buttons');
+            $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://wwww.google.com');
+            $msgBuilder->withButton('Open Link', $actionOpenUrl);
+
+            $actionQueryShow = $msgBuilder->buildActionQueryShow('query_show');
+            $msgBuilder->withButton('Query Show', $actionQueryShow);
+
+            $actionQueryHide = $msgBuilder->buildActionQueryHide('query_hide');
+            $msgBuilder->withButton('Query Hide', $actionQueryHide);
+
+            $actionOpenPhone = $msgBuilder->buildActionOpenPhone('0919018791');
+            $msgBuilder->withButton('Open Phone', $actionOpenPhone);
+
+            $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
+            $msgBuilder->withButton('Open SMS', $actionOpenSMS);
+
+            $msgImage = $msgBuilder->build();
+
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -343,177 +381,132 @@ class ZaloSdkTest {
         }
     }
 
-    function uploadImageOA($filePath) {
-        try {
-            $params = ['file' => new ZaloFile($filePath)];
-            $response = $this->zalo->post('/upload/image', null, $params, Zalo::API_TYPE_OA);
-            echo '<br><br>';
-            print_r($response->getDecodedBody());
-            echo '<br><br>';
-        } catch (ZaloSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Zalo SDK returned an error: ' . $e->getMessage();
-            exit;
-        }
-    }
-    
-    function getMessageStatus() {
-        try {
-            $params = ['msgid' => "7837164f5652040c5d43"];
-            $response = $this->zalo->get('/getmessagestatus', null, $params, Zalo::API_TYPE_OA);
-            echo '<br><br>';
-            print_r($response->getDecodedBody());
-            echo '<br><br>';
-        } catch (ZaloSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Zalo SDK returned an error: ' . $e->getMessage();
-            exit;
-        }
-    }
-    
-    function sendCustomerCareMessage() {
-        try {
-            $templateData = array(
-                'username' => 'linhndh',
-                'invitename' => 'linh'
-            );
-            $data = array(
-                'uid' => 1785179753369910605,
-                'templateid' => 'fafc11142d51c40f9d40',
-                'templatedata' => $templateData
-            );
-            $params = ['data' => $data];
-            $response = $this->zalo->post('/sendmessage/cs', null, $params, Zalo::API_TYPE_OA);
-            echo '<br><br>';
-            print_r($response->getDecodedBody());
-            echo '<br><br>';
-        } catch (ZaloSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Zalo SDK returned an error: ' . $e->getMessage();
-            exit;
-        }
-    }
-    
-    function sendCustomerCareMessageViaPhoneNumber() {
-        try {
-            $templateData = array(
-                'username' => 'linhndh',
-                'invitename' => 'linh'
-            );
-            $data = array(
-                'phone' => 84919018791,
-                'templateid' => 'fafc11142d51c40f9d40',
-                'templatedata' => $templateData
-            );
-            $params = ['data' => $data];
-            $response = $this->zalo->post('/sendmessage/phone/cs', null, $params, Zalo::API_TYPE_OA);
-            echo '<br><br>';
-            print_r($response->getDecodedBody());
-            echo '<br><br>';
-        } catch (ZaloSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Zalo SDK returned an error: ' . $e->getMessage();
-            exit;
-        }
-    }
-    
-    function getOrderOA() {
-        $data = array(
-            'offset' => 0,
-            'count' => 10,
-            'filter' => 0
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->get('/store/order/getorderofoa', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function createProduct() {
-        $cate = array('cateid' => '38a81ced22a8cbf692b9');
-        $cates = [$cate];
-        $photo = array('id' => 'b835603364748d2ad465');
-        $photos = [$photo];
-        $data = array(
-//            'cateids' => $cates,
-            'name' => 'Test create product',
-            'desc' => 'create product',
-            'code' => '1010',
-            'price' => 15000,
-            'photos' => $photos,
-            'display' => 'show', // show | hide
-            'payment' => 2 // 2 - enable | 3 - disable
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/store/product/create', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function updateProduct() {
-        $cate = array('cateid' => '38a81ced22a8cbf692b9');
-        $cates = [$cate];
-        $photo = array('id' => 'b835603364748d2ad465');
-        $photos = [$photo];
-        $productUpdate = array(
-            'cateids' => $cates,
-            'name' => 'Test update product',
-            'desc' => '',
-            'code' => '1010',
-            'price' => 15000,
-            'photos' => $photos,
-            'display' => 'show', // show | hide
-            'payment' => 2 // 2 - enable | 3 - disable
-        );
+    function sendOALinksMessage($accessToken) {
+        $msgBuilder = new MessageBuilder('list');
+        $msgBuilder->withUserId('494021888309207992');
+
+        $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://www.google.com');
+        $msgBuilder->withElement('Open Link Google', 'https://img.icons8.com/bubbles/2x/google-logo.png', 'The best search engine!', $actionOpenUrl);
+
+        $actionQueryShow = $msgBuilder->buildActionQueryShow('query_show');
+        $msgBuilder->withElement('Query Show', 'https://www.computerhope.com/jargon/q/query.jpg', '', $actionQueryShow);
+
+        $actionQueryHide = $msgBuilder->buildActionQueryHide('query_hide');
+        $msgBuilder->withElement('Query Hide', 'https://www.computerhope.com/jargon/q/query.jpg', '', $actionQueryHide);
+
+        $actionOpenPhone = $msgBuilder->buildActionOpenPhone('0919018791');
+        $msgBuilder->withElement('Open Phone', 'https://cdn.iconscout.com/icon/premium/png-256-thumb/phone-275-123408.png', '', $actionOpenPhone);
+
+        $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
+        $msgBuilder->withElement('Open SMS', 'https://cdn0.iconfinder.com/data/icons/new-design/512/42-Chat-512.png', '', $actionOpenSMS);
         
-        $data = array(
-            'productid' => '2fc93b701235fb6ba224',
-            'product' => $productUpdate
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/store/product/update', null, $params, Zalo::API_TYPE_OA);
+        
+        $msgList = $msgBuilder->build();
+
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgList);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+
+        $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://wwww.google.com');
+        $msgBuilder->withButton('Open Link', $actionOpenUrl);
+
+        $actionQueryShow = $msgBuilder->buildActionQueryShow('query_show');
+        $msgBuilder->withButton('Query Show', $actionQueryShow);
+
+        $actionQueryHide = $msgBuilder->buildActionQueryHide('query_hide');
+        $msgBuilder->withButton('Query Hide', $actionQueryHide);
+
+        $actionOpenPhone = $msgBuilder->buildActionOpenPhone('0919018791');
+        $msgBuilder->withButton('Open Phone', $actionOpenPhone);
+
+        $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
+        $msgBuilder->withButton('Open SMS', $actionOpenSMS);
+        $msgList = $msgBuilder->build();
+
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgList);
         echo '<br><br>';
         print_r($response->getDecodedBody());
         echo '<br><br>';
     }
-    
-    function deleteProduct() {
-        $params = ['productid' => ''];
-        $response = $this->zalo->post('/store/product/remove', null, $params, Zalo::API_TYPE_OA);
+
+    function sendOAGifMessage($accessToken) {
+            $msgBuilder = new MessageBuilder('media');
+            $msgBuilder->withUserId('494021888309207992');
+            $msgBuilder->withText('Message Image');
+            $msgBuilder->withAttachment('PWhbF13YGGi9VTkG/vHcTyoskajfj5Ve/EGsTK80XYo=');
+            $msgBuilder->withMediaType('gif');
+            $msgBuilder->withMediaSize(120, 120);
+            $msgImage = $msgBuilder->build();
+
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+
+            $msgBuilder->withText('Message Image with Buttons');
+            $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://wwww.google.com');
+            $msgBuilder->withButton('Open Link', $actionOpenUrl);
+
+            $actionQueryShow = $msgBuilder->buildActionQueryShow('query_show');
+            $msgBuilder->withButton('Query Show', $actionQueryShow);
+
+            $actionQueryHide = $msgBuilder->buildActionQueryHide('query_hide');
+            $msgBuilder->withButton('Query Hide', $actionQueryHide);
+
+            $actionOpenPhone = $msgBuilder->buildActionOpenPhone('0919018791');
+            $msgBuilder->withButton('Open Phone', $actionOpenPhone);
+
+            $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
+            $msgBuilder->withButton('Open SMS', $actionOpenSMS);
+
+            $msgImage = $msgBuilder->build();
+
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+    }
+
+    function sendFileMessage($accessToken) {
+        $msgBuilder = new MessageBuilder('file');
+        $msgBuilder->withUserId('494021888309207992');
+        $msgBuilder->withFileToken('QgcYIRd2pbPZyk49xiNBLIkvx0cvnjLTTxdW0_ZQaWSvxkG3_8_5KJgxiGIhY9TLRlRcLloLaLDiyk5Q_PEQKsxquLFx-fifQkUQBhZTdKT0_vmWjFURNaUBcGEuu-u0B8lo0xk_q5P-t_O2wB-30thSer7Zkj1PUe-bMU-xXL4rDJcWKKCmeeoL2G');
+        $msgFile = $msgBuilder->build();
+
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgFile);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+
+        $msgBuilder->withText('Message Image with Buttons');
+        $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://wwww.google.com');
+        $msgBuilder->withButton('Open Link', $actionOpenUrl);
+
+        $actionQueryShow = $msgBuilder->buildActionQueryShow('query_show');
+        $msgBuilder->withButton('Query Show', $actionQueryShow);
+
+        $actionQueryHide = $msgBuilder->buildActionQueryHide('query_hide');
+        $msgBuilder->withButton('Query Hide', $actionQueryHide);
+
+        $actionOpenPhone = $msgBuilder->buildActionOpenPhone('0919018791');
+        $msgBuilder->withButton('Open Phone', $actionOpenPhone);
+
+        $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
+        $msgBuilder->withButton('Open SMS', $actionOpenSMS);
+
+        $msgImage = $msgBuilder->build();
+
+        $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
         echo '<br><br>';
         print_r($response->getDecodedBody());
         echo '<br><br>';
     }
-    
-    function getProductInfo() {
-        $data = array(
-            'productid' => '2fc93b701235fb6ba224'
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->get('/store/product/getproduct', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function getListProduct() {
-        $data = array(
-            'offset' => '0',
-            'count' => '10'
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->get('/store/product/getproductofoa', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function uploadProductImage($filePath) {
+
+    function uploadImageOA($filePath, $accessToken) {
         try {
-            $params = ['file' => new ZaloFile($filePath)];
-            $response = $this->zalo->post('/store/upload/productphoto', null, $params, Zalo::API_TYPE_OA);
+            $data = array('file' => new ZaloFile($filePath));
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_UPLOAD_PHOTO, $accessToken, $data);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -523,55 +516,11 @@ class ZaloSdkTest {
             exit;
         }
     }
-    
-    function createCategory() {
-        $data = array(
-            'name' => 'Test category',
-            'desc' => 'This is sample category',
-            'photo' => '1aca13c31784fedaa795',
-            'status' => 0 // 0 - show | 1 - hide
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/store/category/create', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function updateCategory() {
-        $categoryUpdate = array(
-            'name' => 'Test update category',
-            'desc' => 'This is sample category',
-            'photo' => '',
-            'status' => 1 // 0 - show | 1 - hide
-        );
-        $data = array(
-            'categoryid' => '38a81ced22a8cbf692b9',
-            'category' => $categoryUpdate
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/store/category/update', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function getListCategory() {
-        $data = array(
-            'offset' => '0',
-            'count' => '10'
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->get('/store/category/getcategoryofoa', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
-    }
-    
-    function uploadCategoryImage($filePath) {
+
+    function uploadGifOA($filePath, $accessToken) {
         try {
-            $params = ['file' => new ZaloFile($filePath)];
-            $response = $this->zalo->post('/store/upload/categoryphoto', null, $params, Zalo::API_TYPE_OA);
+            $data = array('file' => new ZaloFile($filePath));
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_UPLOAD_GIF, $accessToken, $data);
             echo '<br><br>';
             print_r($response->getDecodedBody());
             echo '<br><br>';
@@ -581,26 +530,100 @@ class ZaloSdkTest {
             exit;
         }
     }
-    
-    function updateOrder() {
-        $data = array(
-            'orderid' => '9541954bac0e45501c1f',
-            'status' => 2,
-            'reason' => 'test update order',
-            'cancelReason' => 'nothing'
-        );
-        $params = ['data' => $data];
-        $response = $this->zalo->post('/store/order/update', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
+
+    function uploadFile($filePath, $accessToken) {
+        try {
+            $data = array('file' => new ZaloFile($filePath));
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_UPLOAD_FILE, $accessToken, $data);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
     }
-    
-    function getOrderInfo() {
-        $params = ['orderid' => '9541954bac0e45501c1f'];
-        $response = $this->zalo->get('/store/order/getorder', null, $params, Zalo::API_TYPE_OA);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
+
+    function getProfileUserFollowOA($accessToken) {
+        try {
+            $data = ['data' => json_encode(array(
+                'user_id' => '494021888309207992'
+            ))];
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_USER_PROFILE, $accessToken, $data);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+    }
+
+    function getProfileOA($accessToken) {
+        try {
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_PROFILE, $accessToken, []);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+    }
+
+    function getFollowers($accessToken) {
+        try {
+            $data = ['data' => json_encode(array(
+                'offset' => '0',
+                'count' => '10'
+            ))];
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_LIST_FOLLOWER, $accessToken, $data);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+    }
+
+    function getListRecentChat($accessToken) {
+        try {
+            $data = ['data' => json_encode(array(
+                'offset' => '0',
+                'count' => '10'
+            ))];
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_LIST_RECENT_CHAT, $accessToken, $data);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+    }
+
+    function getConversation($accessToken) {
+        try {
+            $data = ['data' => json_encode(array(
+                'user_id' => 494021888309207992,
+                'offset' => 0,
+                'count' => 10
+            ))];
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_CONVERSATION, $accessToken, $data);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
     }
 }
+

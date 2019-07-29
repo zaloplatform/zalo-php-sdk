@@ -1,6 +1,6 @@
 <?php
 /**
- * Zalo © 2017
+ * Zalo © 2019
  *
  */
 
@@ -87,7 +87,6 @@ class ZaloRequest
         if ($accessToken instanceof AccessToken) {
             $this->accessToken = $accessToken->getValue();
         }
-
         return $this;
     }
 
@@ -215,7 +214,6 @@ class ZaloRequest
         // Clean the token & app secret proof from the url.
         $filterParams = ['access_token', 'appsecret_proof'];
         $this->url = ZaloUrlManipulator::removeParamsFromUrl($url, $filterParams);
-        
         return $this;
     }
 
@@ -311,7 +309,6 @@ class ZaloRequest
                 unset($params[$key]);
             }
         }
-
         return $params;
     }
     
@@ -397,7 +394,7 @@ class ZaloRequest
         $params = $this->params;
 
         $accessToken = $this->getAccessToken();
-        // $params['access_token'] = $accessToken;
+        $params['access_token'] = $accessToken;
         return $params;
     }
 
@@ -426,10 +423,10 @@ class ZaloRequest
         if ($this->getMethod() !== 'POST') {
             $params = $this->getParams();
             $url = ZaloUrlManipulator::appendParamsToUrl($url, $params);
-        }
-        if (!$this->containsFileUploads()) {
+        } else {
             $p = ["access_token" => $this->getAccessToken()];
             $url = ZaloUrlManipulator::appendParamsToUrl($url, $p);
+            $url = urldecode($url);
         }
         return $url;
     }
@@ -445,5 +442,15 @@ class ZaloRequest
             'SDK-Source' => 'ZALO-PHP-SDK-v' . Zalo::VERSION,
             'Accept-Encoding' => '*',
         ];
+    }
+
+    /**
+     * Check domain is graph api
+     *
+     * @return array
+     */
+    public function isGraph()
+    {
+        return strpos( $this->url, 'graph' ) !== false;
     }
 }
