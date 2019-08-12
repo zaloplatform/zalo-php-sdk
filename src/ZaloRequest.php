@@ -424,8 +424,14 @@ class ZaloRequest
             $params = $this->getParams();
             $url = ZaloUrlManipulator::appendParamsToUrl($url, $params);
         } else {
+            $params = $this->getParams();
             $p = ["access_token" => $this->getAccessToken()];
             $url = ZaloUrlManipulator::appendParamsToUrl($url, $p);
+            foreach ($params as $key => $value) {
+                if ($key === 'upload_type') {
+                    $url = ZaloUrlManipulator::appendParamsToUrl($url, [$key => $value]);
+                }
+            }
             $url = urldecode($url);
         }
         return $url;
