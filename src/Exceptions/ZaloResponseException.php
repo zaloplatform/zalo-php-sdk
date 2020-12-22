@@ -147,12 +147,25 @@ class ZaloResponseException extends ZaloSDKException {
                 return new static($response, new ZaloOAException($message, $code));
             case -219:
                 return new static($response, new ZaloOAException($message, $code));
+            case -221:
+                return new static($response, new ZaloOAException($message, $code));
+            case -305:
+                return new static($response, new ZaloOAException($message, $code));
+            case -311:
+                return new static($response, new ZaloOAException($message, $code));
+            case -320:
+                return new static($response, new ZaloOAException($message, $code));
+            case -321:
+                return new static($response, new ZaloOAException($message, $code));
             case -20109:
                 return new static($response, new ZaloOAException($message, $code));
             case -20009:
                 return new static($response, new ZaloOAException($message, $code));
         }
         
+        if ($code < 0) {
+            return new static($response, new ZaloOAException($message, $code));
+        }
         // All others
         //return new static($response, new ZaloOtherException($message, $code));
     }
