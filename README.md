@@ -27,19 +27,22 @@ use Zalo\Zalo;
 
 $config = array(
     'app_id' => '1234567890987654321',
-    'app_secret' => 'AbC123456XyZ',
-    'callback_url' => 'https://www.callback.com'
+    'app_secret' => 'AbC123456XyZ'
 );
 $zalo = new Zalo($config);
 ```
 
 ## Social API
 
+Tài liệu chi tiết <a href="https://developers.zalo.me/docs/api/social-api/tham-khao/user-access-token-v4-post-4316">tại đây</a>.
+
 ***Lấy link đăng nhập***
 ```php
 $helper = $zalo -> getRedirectLoginHelper();
 $callbackUrl = "https://www.callbackack.com";
-$loginUrl = $helper->getLoginUrl($callBackUrl); // This is login url
+$codeChallenge = "your code challenge";
+$state = "your state";
+$loginUrl = $helper->getLoginUrl($callBackUrl, $codeChallenge, $state); // This is login url
 ```
 
 **Lấy access token**
@@ -49,68 +52,41 @@ $loginUrl = $helper->getLoginUrl($callBackUrl); // This is login url
 >Hãy đặt đoạn mã dưới tại link callback bạn đã đăng ký với app, đoạn mã sẽ thực hiện lấy oauth code từ link callback và gửi yêu cầu lên hệ thống để lấy access token.
 
 ```php
-$callBackUrl = "www.put_your_call_backack_url_here.com";
-$oauthCode = isset($_GET['code']) ? $_GET['code'] : "THIS NOT CALLBACK PAGE !!!"; // get oauthoauth code from url params
-$accessToken = $helper->getAccessToken($callBackUrl); // get access token
-if ($accessToken != null) {
-    $expires = $accessToken->getExpiresAt(); // get expires time
-}
+$codeVerifier = "your code verifier";
+$zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
+$accessToken = $zaloToken->getAccessToken();
 ```
 
 **Lấy thông tin người dùng**
 ```php
 $accessToken = 'put_your_access_token_here';
-$params = ['fields' => 'id,name,birthday,gender,picture'];
+$params = ['fields' => 'id,name,picture'];
 $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
-$result = $response->getDecodedBody(); // result
-```
-
-**Lấy danh sách bạn bè**
-```php
-$accessToken = 'put_your_access_token_here';
-$params = ['offset' => 0, 'limit' => 10, 'fields' => "id, name"];
-$response = $zalo->get(ZaloEndpoint::API_GRAPH_FRIENDS, $accessToken, $params);
-$result = $response->getDecodedBody(); // result
-```
-
-**Lấy danh sách bạn bè chưa sử dụng ứng dụng và có thể nhắn tin mời sử dụng ứng dụng**
-```php
-$accessToken = 'put_your_access_token_here';
-$params = ['offset' => 0, 'limit' => 10, 'fields' => "id, name"];
-$response = $zalo->get(ZaloEndpoint::API_GRAPH_INVITABLE_FRIENDS, $accessToken, $params);
-$result = $response->getDecodedBody(); // result
-```
-
-**Đăng bài viết**
-```php
-$accessToken = 'put_your_access_token_here';
-$params = ['message' => 'put_your_text_here', 'link' => 'put_your_link_here'];
-$response = $zalo->post(ZaloEndpoint::API_GRAPH_POST_FEED, $accessToken, $params);
-$result = $response->getDecodedBody(); // result
-```
-
-**Mời sử dụng ứng dụng**
-```php
-$accessToken = 'put_your_access_token_here';
-$params = ['message' => 'put_your_message_here', 'to' => 'put_user_id_receive_here'];
-$response = $zalo->post(ZaloEndpoint::API_GRAPH_APP_REQUESTS, $accessToken, $params);
-$result = $response->getDecodedBody(); // result
-```
-
-**Gửi tin nhắn tới bạn bè**
-```php
-$accessToken = 'put_your_access_token_here';
-$params = ['message' => 'put_your_message_here', 'to' => 'put_user_id_receive_here', 'link' => 'put_your_link_here'];
-$response = $zalo->post(ZaloEndpoint::API_GRAPH_MESSAGE, $accessToken, $params);
 $result = $response->getDecodedBody(); // result
 ```
 
 ## Official Account Open API
 
+Tài liệu chi tiết <a href="https://developers.zalo.me/docs/api/official-account-api/xac-thuc-va-uy-quyen/cach-1-xac-thuc-voi-giao-thuc-oauth/yeu-cau-cap-moi-oa-access-token-post-4307">tại đây</a>.
+
 **Tạo link Offical Account ủy quyền cho ứng dụng**
 ```php
-$callbackPageUrl = "https://www.callbackPage.com"
-$linkOAGrantPermission2App = $helper->getLoginUrlByPage($callbackPageUrl); // This is url for admin OA grant permission to app
+$oaCallbackUrl = "https://www.callbackPage.com"
+$codeChallenge = "your code challenge";
+$state = "your state";
+$linkOAGrantPermission2App = $helper->getLoginUrlByOA($oaCallbackUrl, $codeChallenge, $state); // This is url for admin OA grant permission to app
+```
+
+**Lấy access token**
+>Khi quản trị viên của OA click vào link và ủy quyền cho ứng dụng,
+>Hệ thống sẽ thực hiện xử lý và chuyển hướng về link callback đã đăng ký với app,
+>OAuth code sẽ được trả về và hiển thị trên đường dẫn của link callback ,
+>Hãy đặt đoạn mã dưới tại link callback bạn đã đăng ký với app, đoạn mã sẽ thực hiện lấy oauth code từ link callback và gửi yêu cầu lên hệ thống để lấy access token.
+
+```php
+$codeVerifier = "your code verifier";
+$zaloToken = $helper->getZaloTokenByOA($codeVerifier); // get zalo token
+$accessToken = $zaloToken->getAccessToken();
 ```
 
 **Gửi tin nhắn text**
@@ -175,6 +151,7 @@ $result = $response->getDecodedBody(); // result
 ```php
 $msgBuilder = new MessageBuilder('list');
 $msgBuilder->withUserId('494021888309207992');
+$msgBuilder->withText('Message Text');
 
 $actionOpenUrl = $msgBuilder->buildActionOpenURL('https://www.google.com');
 $msgBuilder->withElement('Open Link Google', 'https://img.icons8.com/bubbles/2x/google-logo.png', 'Search engine', $actionOpenUrl);
@@ -218,18 +195,6 @@ $msgBuilder->withFileToken('call_upload_file_api_to_get_file_token');
 $msgFile = $msgBuilder->build();
 $response = $zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgFile);
 $result = $response->getDecodedBody(); // result
-```
-
-**Gửi tin nhắn mời quan tâm**
-```php
-// build data
-$msgBuilder = new MessageBuilder('template');
-$msgBuilder->withPhoneNumber('0919018791');
-$msgBuilder->withTemplate('87efbc018044691a3055', []);
-$msgInvite = $msgBuilder->build();
-// send request
-$response = $zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgInvite);
-$result = $response->getDecodedBody();
 ```
 
 **Upload hình**
@@ -330,7 +295,7 @@ $result = $response->getDecodedBody(); // result
 **Lấy danh sách tin nhắn với người quan tâm**
 ```php
 $data = ['data' => json_encode(array(
-                'user_id' => 494021888309207992,
+                'user_id' => '494021888309207992',
                 'offset' => 0,
                 'count' => 10
             ))];
@@ -340,7 +305,7 @@ $result = $response->getDecodedBody(); // result
 
 ## Versioning
 
-Current version is 2.0.0. We will update more features in next version.
+Current version is 4.0.0. We will update more features in next version.
 
 ## Authors
 

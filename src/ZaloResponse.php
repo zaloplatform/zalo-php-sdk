@@ -51,9 +51,9 @@ class ZaloResponse
      * Creates a new Response entity.
      *
      * @param ZaloRequest $request
-     * @param string|null     $body
-     * @param int|null        $httpStatusCode
-     * @param array|null      $headers
+     * @param string|null $body
+     * @param int|null $httpStatusCode
+     * @param array|null $headers
      */
     public function __construct(ZaloRequest $request, $body = null, $httpStatusCode = null, array $headers = [])
     {
@@ -136,16 +136,6 @@ class ZaloResponse
     }
 
     /**
-     * Get the app secret proof that was used for this response.
-     *
-     * @return string|null
-     */
-    public function getAppSecretProof()
-    {
-        return $this->request->getAppSecretProof();
-    }
-
-    /**
      * Get the ETag associated with the response.
      *
      * @return string|null
@@ -210,7 +200,6 @@ class ZaloResponse
 
         if ($this->decodedBody === null) {
             $this->decodedBody = [];
-            parse_str($this->body, $this->decodedBody);
         } elseif (is_bool($this->decodedBody)) {
             // Backwards compatibility for Graph < 2.1.
             // Mimics 2.1 responses.

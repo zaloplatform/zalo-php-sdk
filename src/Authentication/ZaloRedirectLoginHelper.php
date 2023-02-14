@@ -7,11 +7,9 @@
 namespace Zalo\Authentication;
 
 use Zalo\Authentication\AccessToken;
-use Zalo\Authentication\OAuth2Client;
 use Zalo\Exceptions\ZaloSDKException;
-use Zalo\Url\ZaloUrlDetectionHandler;
-use Zalo\Url\ZaloUrlManipulator;
 use Zalo\Url\UrlDetectionInterface;
+use Zalo\Url\ZaloUrlDetectionHandler;
 
 
 /**
@@ -21,11 +19,6 @@ use Zalo\Url\UrlDetectionInterface;
  */
 class ZaloRedirectLoginHelper
 {
-    /**
-     * @const int The length of CSRF string to validate the login link.
-     */
-    const CSRF_LENGTH = 32;
-
     /**
      * @var OAuth2Client The OAuth 2.0 client service.
      */
@@ -37,10 +30,8 @@ class ZaloRedirectLoginHelper
     protected $urlDetectionHandler;
 
     /**
-     * @param OAuth2Client                              $oAuth2Client          The OAuth 2.0 client service.
-     * @param PersistentDataInterface|null              $persistentDataHandler The persistent data handler.
-     * @param UrlDetectionInterface|null                $urlHandler            The URL detection handler.
-     * @param PseudoRandomStringGeneratorInterface|null $prsg                  The cryptographically secure pseudo-random string generator.
+     * @param OAuth2Client $oAuth2Client The OAuth 2.0 client service.
+     * @param UrlDetectionInterface|null $urlHandler The URL detection handler.
      */
     public function __construct(OAuth2Client $oAuth2Client, UrlDetectionInterface $urlHandler = null)
     {
@@ -62,93 +53,97 @@ class ZaloRedirectLoginHelper
      * Stores CSRF state and returns a URL to which the user should be sent to in order to continue the login process with Zalo.
      *
      * @param string $redirectUrl The URL Zalo should redirect users to after login.
-     * @param array  $scope       List of permissions to request during login.
-     * @param array  $params      An array of parameters to generate URL.
-     * @param string $separator   The separator to use in http_build_query().
+     * @param string $codeChallenge The code challenge is a Base64-URL-encoded string of the SHA256 hash of the code verifier.
+     * @param string $state The CSPRNG-generated CSRF value.
      *
      * @return string
      */
-    private function makeUrl($redirectUrl, array $params = [], $separator = '&')
+    private function makeUrl($redirectUrl, $codeChallenge, $state)
     {
-        return $this->oAuth2Client->getAuthorizationUrl($redirectUrl, $params, $separator);
+        return $this->oAuth2Client->getAuthorizationUrlByUser($redirectUrl, $codeChallenge, $state);
     }
-    
-    private function makeUrlByPage($redirectUrl, array $params = [], $separator = '&')
+
+    private function makeUrlByOA($redirectUrl, $codeChallenge, $state)
     {
-        return $this->oAuth2Client->getAuthorizationUrlByPage($redirectUrl, $params, $separator);
+        return $this->oAuth2Client->getAuthorizationUrlByOA($redirectUrl, $codeChallenge, $state);
     }
 
     /**
      * Returns the URL to send the user in order to login to Zalo.
      *
      * @param string $redirectUrl The URL Zalo should redirect users to after login.
-     * @param array  $scope       List of permissions to request during login.
-     * @param string $separator   The separator to use in http_build_query().
+     * @param string $codeChallenge The code challenge is a Base64-URL-encoded string of the SHA256 hash of the code verifier.
+     * @param string $state The CSPRNG-generated CSRF value.
      *
      * @return string
      */
-    public function getLoginUrl($redirectUrl, $separator = '&')
+    public function getLoginUrl($redirectUrl, $codeChallenge, $state)
     {
-        return $this->makeUrl($redirectUrl, [], $separator);
-    }
-    
-    public function getLoginUrlByPage($redirectUrl, $separator = '&')
-    {
-        return $this->makeUrlByPage($redirectUrl, [], $separator);
+        return $this->makeUrl($redirectUrl, $codeChallenge, $state);
     }
 
     /**
-     * Returns the URL to send the user in order to login to Zalo with permission(s) to be re-asked.
+     * Returns the URL to send the oa admin in order to login to Zalo.
      *
-     * @param string $redirectUrl The URL Zalo should redirect users to after login.
-     * @param array  $scope       List of permissions to request during login.
-     * @param string $separator   The separator to use in http_build_query().
-     *
+     * @param $redirectUrl
+     * @param string $codeChallenge The code challenge is a Base64-URL-encoded string of the SHA256 hash of the code verifier.
+     * @param string $state The CSPRNG-generated CSRF value.
      * @return string
      */
-    public function getReRequestUrl($redirectUrl, array $scope = [], $separator = '&')
+    public function getLoginUrlByOA($redirectUrl, $codeChallenge, $state)
     {
-        $params = ['auth_type' => 'rerequest'];
-
-        return $this->makeUrl($redirectUrl, $scope, $params, $separator);
+        return $this->makeUrlByOA($redirectUrl, $codeChallenge, $state);
     }
 
     /**
-     * Returns the URL to send the user in order to login to Zalo with user to be re-authenticated.
+     * Returns the URL to send the oa admin in order to login to Zalo.
      *
-     * @param string $redirectUrl The URL Zalo should redirect users to after login.
-     * @param array  $scope       List of permissions to request during login.
-     * @param string $separator   The separator to use in http_build_query().
-     *
+     * @param $redirectUrl
+     * @param string $codeChallenge The code challenge is a Base64-URL-encoded string of the SHA256 hash of the code verifier.
+     * @param string $state The CSPRNG-generated CSRF value.
      * @return string
+     *
+     * @deprecated getLoginUrlByPage() has been renamed to getLoginUrlByOA()
      */
-    public function getReAuthenticationUrl($redirectUrl, array $scope = [], $separator = '&')
+    public function getLoginUrlByPage($redirectUrl, $codeChallenge, $state)
     {
-        $params = ['auth_type' => 'reauthenticate'];
-
-        return $this->makeUrl($redirectUrl, $scope, $params, $separator);
+        return $this->getLoginUrlByOA($redirectUrl, $codeChallenge, $state);
     }
 
     /**
-     * Takes a valid code from a login redirect, and returns an AccessToken entity.
+     * Takes a valid code from a login redirect, and returns an ZaloToken entity.
      *
-     * @param string|null $redirectUrl The redirect URL.
+     * @param string $codeVerifier
      *
-     * @return AccessToken|null
+     * @return ZaloToken|null
      *
      * @throws ZaloSDKException
      */
-    public function getAccessToken($redirectUrl = null)
+    public function getZaloToken($codeVerifier)
     {
         if (!$code = $this->getCode()) {
-            return null;
+            throw new ZaloSDKException('OAuth code mismatch.');
         }
-        
-        $redirectUrl = $redirectUrl ?: $this->urlDetectionHandler->getCurrentUrl();
-        // At minimum we need to remove the state param
-        $redirectUrl = ZaloUrlManipulator::removeParamsFromUrl($redirectUrl, ['state']);
 
-        return $this->oAuth2Client->getAccessTokenFromCode($code, $redirectUrl);
+        return $this->oAuth2Client->getZaloTokenFromCodeByUser($code, $codeVerifier);
+    }
+
+    /**
+     * Takes a valid code from a login redirect, and returns an ZaloToken entity.
+     *
+     * @param string $codeVerifier
+     *
+     * @return ZaloToken|null
+     *
+     * @throws ZaloSDKException
+     */
+    public function getZaloTokenByOA($codeVerifier)
+    {
+        if (!$code = $this->getCode()) {
+            throw new ZaloSDKException('OAuth code mismatch.');
+        }
+
+        return $this->oAuth2Client->getZaloTokenFromCodeByOA($code, $codeVerifier);
     }
 
     /**
@@ -162,23 +157,21 @@ class ZaloRedirectLoginHelper
     }
 
     /**
-     * Return the error code.
+     * Return the code challenge.
      *
      * @return string|null
      */
-    public function getErrorCode()
+    protected function getCodeChallenge()
     {
-        return $this->getInput('error_code');
+        return $this->getInput('code_challenge');
     }
 
     /**
-     * Returns the error.
-     *
-     * @return string|null
+     * Return the state.
      */
-    public function getError()
+    protected function getState()
     {
-        return $this->getInput('error');
+        return $this->getInput('state');
     }
 
     /**

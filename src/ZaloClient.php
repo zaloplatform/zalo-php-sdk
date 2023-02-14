@@ -15,7 +15,8 @@ use Zalo\HttpClients\ZaloHttpClientInterface;
  *
  * @package Zalo
  */
-class ZaloClient {
+class ZaloClient
+{
 
     /**
      * @const int The timeout in seconds for a normal request.
@@ -41,10 +42,11 @@ class ZaloClient {
      * Instantiates a new ZaloClient object.
      *
      * @param ZaloHttpClientInterface|null $httpClientHandler
-     * @param boolean                          $enableBeta
+     * @param boolean $enableBeta
      */
-    public function __construct(ZaloHttpClientInterface $httpClientHandler = null, $enableBeta = false) {
-        $this->httpClientHandler = $httpClientHandler ? : $this->detectHttpClientHandler();
+    public function __construct(ZaloHttpClientInterface $httpClientHandler = null, $enableBeta = false)
+    {
+        $this->httpClientHandler = $httpClientHandler ?: $this->detectHttpClientHandler();
         $this->enableBetaMode = $enableBeta;
     }
 
@@ -53,7 +55,8 @@ class ZaloClient {
      *
      * @param ZaloHttpClientInterface $httpClientHandler
      */
-    public function setHttpClientHandler(ZaloHttpClientInterface $httpClientHandler) {
+    public function setHttpClientHandler(ZaloHttpClientInterface $httpClientHandler)
+    {
         $this->httpClientHandler = $httpClientHandler;
     }
 
@@ -62,7 +65,8 @@ class ZaloClient {
      *
      * @return ZaloHttpClientInterface
      */
-    public function getHttpClientHandler() {
+    public function getHttpClientHandler()
+    {
         return $this->httpClientHandler;
     }
 
@@ -71,7 +75,8 @@ class ZaloClient {
      *
      * @return ZaloHttpClientInterface
      */
-    public function detectHttpClientHandler() {
+    public function detectHttpClientHandler()
+    {
         return new ZaloCurlHttpClient();
     }
 
@@ -80,7 +85,8 @@ class ZaloClient {
      *
      * @param boolean $betaMode
      */
-    public function enableBetaMode($betaMode = true) {
+    public function enableBetaMode($betaMode = true)
+    {
         $this->enableBetaMode = $betaMode;
     }
 
@@ -91,25 +97,55 @@ class ZaloClient {
      *
      * @return array
      */
-    public function prepareRequestMessage(ZaloRequest $request) {
+    public function prepareRequestMessage(ZaloRequest $request)
+    {
         $url = $request->getUrl();
-        // If we're sending files they should be sent as multipart/form-data
-        if ($request->containsFileUploads()) {
-            $requestBody = $request->getMultipartBody();
+        if ($request->getAccessToken()) {
             $request->setHeaders([
-                'Content-Type' => 'multipart/form-data; boundary=' . $requestBody->getBoundary(),
-            ]);
-        } else if ($request->getMethod() === 'GET' || $request->isGraph() === true) {
-            $requestBody = $request->getUrlEncodedBody();
-            $request->setHeaders([
-                'Content-Type' => 'application/x-www-form-urlencoded',
-            ]);
-        } else {
-            $requestBody = $request->getRawBody();
-            $request->setHeaders([
-                'Content-Type' => 'application/json',
+                'access_token' => $request->getAccessToken()
             ]);
         }
+
+        $contentType = $request->getContentType();
+        if ($contentType === null) {
+            // If we're sending files they should be sent as multipart/form-data
+            if ($request->containsFileUploads()) {
+                $contentType = 'multipart/form-data';
+            } else if ($request->getMethod() === 'GET' || $request->isGraph() === true) {
+                $contentType = 'application/x-www-form-urlencoded';
+            } else {
+                $contentType = 'application/json';
+            }
+        }
+
+        switch ($contentType) {
+            case 'multipart/form-data':
+            {
+                $requestBody = $request->getMultipartBody();
+                $request->setHeaders([
+                    'Content-Type' => 'multipart/form-data; boundary=' . $requestBody->getBoundary(),
+                ]);
+                break;
+            }
+            case 'application/x-www-form-urlencoded':
+            {
+                $requestBody = $request->getUrlEncodedBody();
+                $request->setHeaders([
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ]);
+                break;
+            }
+            case 'application/json':
+            default:
+            {
+                $requestBody = $request->getRawBody();
+                $request->setHeaders([
+                    'Content-Type' => 'application/json',
+                ]);
+                break;
+            }
+        }
+
         return [
             $url,
             $request->getMethod(),
@@ -127,7 +163,8 @@ class ZaloClient {
      *
      * @throws ZaloSDKException
      */
-    public function sendRequest(ZaloRequest $request) {
+    public function sendRequest(ZaloRequest $request)
+    {
         $request->validateAccessToken();
 
         list($url, $method, $headers, $body) = $this->prepareRequestMessage($request);
@@ -140,7 +177,7 @@ class ZaloClient {
         static::$requestCount++;
 
         $returnResponse = new ZaloResponse(
-                $request, $rawResponse->getBody(), $rawResponse->getHttpResponseCode(), $rawResponse->getHeaders()
+            $request, $rawResponse->getBody(), $rawResponse->getHttpResponseCode(), $rawResponse->getHeaders()
         );
 
         if ($returnResponse->isError()) {
@@ -151,7 +188,7 @@ class ZaloClient {
     }
 
     /**
-     * Makes the upload request to  and returns the result.
+     * Make the request without the access_token header parameter and return the result.
      *
      * @param ZaloRequest $request
      *
@@ -159,9 +196,9 @@ class ZaloClient {
      *
      * @throws ZaloSDKException
      */
-    public function sendRequestUploadVideo(ZaloRequest $request) {
-
-        list($url, $method, $headers, $body) = $this->prepareUploadVideoRequestMessage($request);
+    public function sendRequestWithoutAccessToken(ZaloRequest $request)
+    {
+        list($url, $method, $headers, $body) = $this->prepareRequestMessage($request);
         // Since file uploads can take a while, we need to give more time for uploads
         $timeOut = static::DEFAULT_REQUEST_TIMEOUT;
 
@@ -171,7 +208,7 @@ class ZaloClient {
         static::$requestCount++;
 
         $returnResponse = new ZaloResponse(
-                $request, $rawResponse->getBody(), $rawResponse->getHttpResponseCode(), $rawResponse->getHeaders()
+            $request, $rawResponse->getBody(), $rawResponse->getHttpResponseCode(), $rawResponse->getHeaders()
         );
 
         if ($returnResponse->isError()) {
@@ -179,26 +216,5 @@ class ZaloClient {
         }
 
         return $returnResponse;
-    }
-
-    /**
-     * Prepares the request for sending to the client handler.
-     *
-     * @param ZaloRequest $request
-     *
-     * @return array
-     */
-    public function prepareUploadVideoRequestMessage(ZaloRequest $request) {
-        // If we're sending files they should be sent as multipart/form-data
-        $requestBody = $request->getMultipartBody();
-        $request->setHeaders([
-            'Content-Type' => 'multipart/form-data; boundary=' . $requestBody->getBoundary(),
-        ]);
-        return [
-            $request->getUrl(),
-            $request->getMethod(),
-            $request->getHeaders(),
-            $requestBody->getBody(),
-        ];
     }
 }

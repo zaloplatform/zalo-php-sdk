@@ -6,15 +6,12 @@
 
 namespace Zalo\Authentication;
 
-use Zalo\Authentication\AccessToken;
-use Zalo\Authentication\AccessTokenMetadata;
-use Zalo\Zalo;
-use Zalo\ZaloApp;
-use Zalo\ZaloRequest;
-use Zalo\ZaloResponse;
-use Zalo\ZaloClient;
 use Zalo\Exceptions\ZaloResponseException;
 use Zalo\Exceptions\ZaloSDKException;
+use Zalo\ZaloApp;
+use Zalo\ZaloClient;
+use Zalo\ZaloRequest;
+use Zalo\ZaloResponse;
 
 /**
  * Class OAuth2Client
@@ -31,7 +28,12 @@ class OAuth2Client
     /**
      * @const string Default OAuth API version for requests.
      */
-    const DEFAULT_OAUTH_VERSION = 'v3';
+    const DEFAULT_OAUTH_VERSION = 'v4';
+
+    /**
+     * @const string Default Content Type for requests.
+     */
+    const DEFAULT_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 
     /**
      * The ZaloApp entity.
@@ -55,9 +57,8 @@ class OAuth2Client
     protected $lastRequest;
 
     /**
-     * @param ZaloApp    $app
+     * @param ZaloApp $app
      * @param ZaloClient $client
-     * @param string|null    $graphVersion The version of the Graph API to use.
      */
     public function __construct(ZaloApp $app, ZaloClient $client)
     {
@@ -80,125 +81,223 @@ class OAuth2Client
      * Generates an authorization URL to begin the process of authenticating a user.
      *
      * @param string $redirectUrl The callback URL to redirect to.
-     * @param string $state       The CSPRNG-generated CSRF value.
-     * @param array  $scope       An array of permissions to request.
-     * @param array  $params      An array of parameters to generate URL.
-     * @param string $separator   The separator to use in http_build_query().
+     * @param string $codeChallenge The code challenge is a Base64-URL-encoded string of the SHA256 hash of the code verifier.
+     * @param string $state The CSPRNG-generated CSRF value.
+     * @param string $separator The separator to use in http_build_query().
      *
      * @return string
      */
-    public function getAuthorizationUrl($redirectUrl, array $params = [], $separator = '&')
+    public function getAuthorizationUrlByUser($redirectUrl, $codeChallenge, $state, $separator = '&')
     {
-        $params += [
+        $params = [
             'app_id' => $this->app->getId(),
             'redirect_uri' => $redirectUrl,
+            'code_challenge' => $codeChallenge,
+            'state' => $state
         ];
 
-        return static::BASE_AUTHORIZATION_URL . '/' . static::DEFAULT_OAUTH_VERSION . '/auth?' . http_build_query($params, null, $separator);
-    }
-    
-    public function getAuthorizationUrlByPage($redirectUrl, array $params = [], $separator = '&')
-    {
-        $params += [
-            'app_id' => $this->app->getId(),
-            'redirect_uri' => $redirectUrl,
-        ];
-        return static::BASE_AUTHORIZATION_URL . '/' . static::DEFAULT_OAUTH_VERSION . '/oa/permission?'. http_build_query($params, null, $separator);
+        return static::BASE_AUTHORIZATION_URL . '/' . static::DEFAULT_OAUTH_VERSION . '/permission?' . http_build_query($params, null, $separator);
     }
 
     /**
-     * Get a valid access token from a code.
+     * Generates an authorization URL to begin the process of authenticating a official account.
+     *
+     * @param string $redirectUrl The callback URL to redirect to.
+     * @param string $codeChallenge The code challenge is a Base64-URL-encoded string of the SHA256 hash of the code verifier.
+     * @param string $state The CSPRNG-generated CSRF value.
+     * @param string $separator The separator to use in http_build_query().
+     *
+     * @return string
+     */
+    public function getAuthorizationUrlByOA($redirectUrl, $codeChallenge, $state, $separator = '&')
+    {
+        $params = [
+            'app_id' => $this->app->getId(),
+            'redirect_uri' => $redirectUrl,
+            'code_challenge' => $codeChallenge,
+            'state' => $state
+        ];
+
+        return static::BASE_AUTHORIZATION_URL . '/' . static::DEFAULT_OAUTH_VERSION . '/oa/permission?' . http_build_query($params, null, $separator);
+    }
+
+    /**
+     * Get Zalo Token by user from a oauth code.
      *
      * @param string $code
-     * @param string $redirectUri
+     * @param string $codeVerifier
      *
-     * @return AccessToken
+     * @return ZaloToken
      *
+     * @throws ZaloResponseException
      * @throws ZaloSDKException
      */
-    public function getAccessTokenFromCode($code, $redirectUri = '')
+    public function getZaloTokenFromCodeByUser($code, $codeVerifier)
+    {
+        $endpoint = '/access_token';
+        return $this->getZaloTokenFromCode($code, $codeVerifier, $endpoint);
+    }
+
+    /**
+     * Get Zalo Token by OA from a oauth code.
+     *
+     * @param string $code
+     * @param string $codeVerifier
+     *
+     * @return ZaloToken
+     *
+     * @throws ZaloResponseException
+     * @throws ZaloSDKException
+     */
+    public function getZaloTokenFromCodeByOA($code, $codeVerifier)
+    {
+        $endpoint = '/oa/access_token';
+        return $this->getZaloTokenFromCode($code, $codeVerifier, $endpoint);
+    }
+
+    /**
+     *
+     * Get Zalo Token from a oauth code.
+     *
+     * @param string $code
+     * @param string $codeVerifier
+     * @param string $endpoint
+     *
+     * @return ZaloToken
+     *
+     * @throws ZaloResponseException
+     * @throws ZaloSDKException
+     */
+    public function getZaloTokenFromCode($code, $codeVerifier, $endpoint)
     {
         $params = [
             'code' => $code,
-            'redirect_uri' => $redirectUri,
+            'app_id' => $this->app->getId(),
+            'grant_type' => 'authorization_code',
+            'code_verifier' => $codeVerifier
         ];
 
-        return $this->requestAnAccessToken($params);
+        $response = $this->sendRequest($endpoint, $params);
+        return $this->buildZaloTokenFromZaloResponse($response);
     }
 
     /**
-     * Send a request to the OAuth endpoint.
+     * Get Zalo Token by user from a refresh token.
      *
-     * @param array $params
+     * @param string $refreshToken
      *
-     * @return AccessToken
-     *
+     * @return ZaloToken
+     * @throws ZaloResponseException
      * @throws ZaloSDKException
      */
-    protected function requestAnAccessToken(array $params)
+    public function getZaloTokenFromRefreshTokenByUser($refreshToken)
     {
-        $response = $this->sendRequestWithClientParams('/access_token', $params);
+        $endpoint = '/access_token';
+        return $this->getZaloTokenFromRefreshToken($refreshToken, $endpoint);
+    }
+
+    /**
+     * Get Zalo Token by OA from a refresh token.
+     *
+     * @param string $refreshToken
+     *
+     * @return ZaloToken
+     * @throws ZaloResponseException
+     * @throws ZaloSDKException
+     */
+    public function getZaloTokenFromRefreshTokenByOA($refreshToken)
+    {
+        $endpoint = '/oa/access_token';
+        return $this->getZaloTokenFromRefreshToken($refreshToken, $endpoint);
+    }
+
+    /**
+     * Get a ZaloToken from a refresh token.
+     *
+     * @param string $refreshToken
+     * @param string $endpoint
+     *
+     * @return ZaloToken
+     *
+     * @throws ZaloResponseException
+     * @throws ZaloSDKException
+     */
+    public function getZaloTokenFromRefreshToken($refreshToken, $endpoint)
+    {
+        $params = [
+            'refresh_token' => $refreshToken,
+            'app_id' => $this->app->getId(),
+            'grant_type' => 'refresh_token'
+        ];
+
+        $response = $this->sendRequest($endpoint, $params);
+        return $this->buildZaloTokenFromZaloResponse($response);
+    }
+
+    /**
+     * Build a ZaloToken from a ZaloResponse
+     *
+     * @param ZaloResponse $response
+     *
+     * @return ZaloToken
+     * @throws ZaloSDKException
+     */
+    protected function buildZaloTokenFromZaloResponse($response)
+    {
         $data = $response->getDecodedBody();
 
         if (!isset($data['access_token'])) {
-            throw new ZaloSDKException('Access token was not returned from Graph.', 401);
+            throw new ZaloSDKException('Access token was not returned from request.', 401);
+        }
+        $accessToken = $data['access_token'];
+
+        if (!isset($data['refresh_token'])) {
+            throw new ZaloSDKException('Refresh token was not returned from request.', 401);
+        }
+        $refreshToken = $data['refresh_token'];
+
+        $accessTokenExpiresIn = 0;
+        if (isset($data['expires_in'])) {
+            $accessTokenExpiresIn = $data['expires_in'];
         }
 
-        // Graph returns two different key names for expiration time
-        // on the same endpoint. Doh! :/
-        $expiresAt = 0;
-        if (isset($data['expires'])) {
-            // For exchanging a short lived token with a long lived token.
-            // The expiration time in seconds will be returned as "expires".
-            $expiresAt = time() + $data['expires'];
-        } elseif (isset($data['expires_in'])) {
-            // For exchanging a code for a short lived access token.
-            // The expiration time in seconds will be returned as "expires_in".
-            // See: https://developers.zalo.me/docs/
-            $expiresAt = time() + $data['expires_in'];
+        $refreshTokenExpiresIn = 0;
+        if (isset($data['refresh_token_expires_in'])) {
+            $refreshTokenExpiresIn = $data['refresh_token_expires_in'];
         }
 
-        return new AccessToken($data['access_token'], $expiresAt);
+        return new ZaloToken($accessToken, $refreshToken, $accessTokenExpiresIn, $refreshTokenExpiresIn);
     }
 
     /**
-     * Send a request to Graph with an app access token.
+     * Send a request.
      *
-     * @param string                  $endpoint
-     * @param array                   $params
-     * @param AccessToken|string|null $accessToken
+     * @param string $endpoint
+     * @param array $params
+     * @param string $contentType
      *
      * @return ZaloResponse
      *
      * @throws ZaloResponseException
+     * @throws ZaloSDKException
      */
-    protected function sendRequestWithClientParams($endpoint, array $params, $accessToken = null)
+    protected function sendRequest($endpoint, array $params, $contentType = self::DEFAULT_CONTENT_TYPE)
     {
-        $params += $this->getClientParams();
-
-        $accessToken = $accessToken ?: $this->app->getAccessToken();
         $url = static::BASE_AUTHORIZATION_URL . '/' . static::DEFAULT_OAUTH_VERSION . $endpoint;
         $this->lastRequest = new ZaloRequest(
-            $accessToken,
-            'GET',
+            null,
+            'POST',
             $url,
             $params,
-            null
+            null,
+            $contentType
         );
 
-        return $this->client->sendRequest($this->lastRequest);
-    }
-
-    /**
-     * Returns the client_* params for OAuth requests.
-     *
-     * @return array
-     */
-    protected function getClientParams()
-    {
-        return [
-            'app_id' => $this->app->getId(),
-            'app_secret' => $this->app->getSecret(),
+        $headers = [
+            'secret_key' => $this->app->getSecret()
         ];
+        $this->lastRequest->setHeaders($headers);
+
+        return $this->client->sendRequestWithoutAccessToken($this->lastRequest);
     }
 }

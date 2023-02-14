@@ -7,12 +7,13 @@
 namespace Zalo;
 
 use Zalo\Authentication\AccessToken;
-use Zalo\Url\ZaloUrlManipulator;
-use Zalo\Http\RequestBodyUrlEncoded;
-use Zalo\Http\RequestBodyRaw;
-use Zalo\Http\RequestBodyMultipart;
+use Zalo\Authentication\ZaloToken;
 use Zalo\Exceptions\ZaloSDKException;
 use Zalo\FileUpload\ZaloFile;
+use Zalo\Http\RequestBodyMultipart;
+use Zalo\Http\RequestBodyRaw;
+use Zalo\Http\RequestBodyUrlEncoded;
+use Zalo\Url\ZaloUrlManipulator;
 
 /**
  * Class Request
@@ -57,35 +58,43 @@ class ZaloRequest
     protected $eTag;
 
     /**
+     * @var string The content type to send with this request.
+     */
+    protected $contentType;
+
+    /**
      * Creates a new Request entity.
      *
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $method
-     * @param string|null             $url
-     * @param array|null              $params
-     * @param string|null             $eTag
+     * @param ZaloToken|string|null $accessToken
+     * @param string|null $method
+     * @param string|null $url
+     * @param array|null $params
+     * @param string|null $eTag
+     *
+     * @throws ZaloSDKException
      */
-    public function __construct($accessToken = null, $method = null, $url = null, array $params = [], $eTag = null)
+    public function __construct($accessToken = null, $method = null, $url = null, array $params = [], $eTag = null, $contentType = null)
     {
         $this->setAccessToken($accessToken);
         $this->setMethod($method);
         $this->setUrl($url);
         $this->setParams($params);
         $this->setETag($eTag);
+        $this->setContentType($contentType);
     }
 
     /**
      * Set the access token for this request.
      *
-     * @param AccessToken|string|null
+     * @param ZaloToken|string|null
      *
      * @return ZaloRequest
      */
     public function setAccessToken($accessToken)
     {
         $this->accessToken = $accessToken;
-        if ($accessToken instanceof AccessToken) {
-            $this->accessToken = $accessToken->getValue();
+        if ($accessToken instanceof ZaloToken) {
+            $this->accessToken = $accessToken->getAccessToken();
         }
         return $this;
     }
@@ -105,7 +114,7 @@ class ZaloRequest
         if (!$existingAccessToken) {
             $this->setAccessToken($accessToken);
         } elseif ($accessToken !== $existingAccessToken) {
-            throw new ZaloSDKException('Access token mismatch. The access token provided in the ZaloRequest and the one provided in the URL or POST params do not match.');
+            throw new ZaloSDKException('Access token mismatch.');
         }
 
         return $this;
@@ -119,30 +128,6 @@ class ZaloRequest
     public function getAccessToken()
     {
         return $this->accessToken;
-    }
-
-    /**
-     * Return the access token for this request as an AccessToken entity.
-     *
-     * @return AccessToken|null
-     */
-    public function getAccessTokenEntity()
-    {
-        return $this->accessToken ? new AccessToken($this->accessToken) : null;
-    }
-
-    /**
-     * Generate an app secret proof to sign this request.
-     *
-     * @return string|null
-     */
-    public function getAppSecretProof()
-    {
-        if (!$accessTokenEntity = $this->getAccessTokenEntity()) {
-            return null;
-        }
-
-        return $accessTokenEntity->getAppSecretProof($this->app->getSecret());
     }
 
     /**
@@ -311,18 +296,18 @@ class ZaloRequest
         }
         return $params;
     }
-    
+
     /**
      * Add a file to be uploaded.
      *
-     * @param string       $key
+     * @param string $key
      * @param ZaloFile $file
      */
     public function addFile($key, ZaloFile $file)
     {
         $this->files[$key] = $file;
     }
-    
+
     /**
      * Removes all the files from the upload queue.
      */
@@ -350,7 +335,7 @@ class ZaloRequest
     {
         return !empty($this->files);
     }
-    
+
     /**
      * Returns the body of the request as multipart/form-data.
      *
@@ -392,9 +377,6 @@ class ZaloRequest
     public function getParams()
     {
         $params = $this->params;
-
-        $accessToken = $this->getAccessToken();
-        $params['access_token'] = $accessToken;
         return $params;
     }
 
@@ -425,8 +407,6 @@ class ZaloRequest
             $url = ZaloUrlManipulator::appendParamsToUrl($url, $params);
         } else {
             $params = $this->getParams();
-            $p = ["access_token" => $this->getAccessToken()];
-            $url = ZaloUrlManipulator::appendParamsToUrl($url, $p);
             foreach ($params as $key => $value) {
                 if ($key === 'upload_type') {
                     $url = ZaloUrlManipulator::appendParamsToUrl($url, [$key => $value]);
@@ -446,6 +426,8 @@ class ZaloRequest
     {
         return [
             'SDK-Source' => 'ZALO-PHP-SDK-v' . Zalo::VERSION,
+            'User-Agent' => 'Zalo PHP Sdk',
+            'SDK_VERSION' => Zalo::VERSION,
             'Accept-Encoding' => '*',
         ];
     }
@@ -457,6 +439,27 @@ class ZaloRequest
      */
     public function isGraph()
     {
-        return strpos( $this->url, 'graph' ) !== false;
+        return strpos($this->url, 'graph') !== false;
+    }
+
+    /**
+     * Get content type
+     *
+     * @return string
+     */
+    public function getContentType()
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * Set content type
+     *
+     * @param $contentType
+     * @return void
+     */
+    public function setContentType($contentType)
+    {
+        $this->contentType = $contentType;
     }
 }

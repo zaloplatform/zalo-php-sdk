@@ -467,7 +467,6 @@ class MessageBuilder
                 $message = array(
                     'recipient' => $this->data[static::RECIPIENT],
                     'message' =>array(
-                        'text' =>  $this->data[static::TEXT],
                         'attachment' => array(
                             'type' => 'template',
                             'payload' => array(

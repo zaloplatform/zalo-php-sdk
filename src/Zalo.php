@@ -9,12 +9,11 @@ namespace Zalo;
 use Zalo\Authentication\AccessToken;
 use Zalo\Authentication\OAuth2Client;
 use Zalo\Authentication\ZaloRedirectLoginHelper;
+use Zalo\Authentication\ZaloToken;
+use Zalo\Exceptions\ZaloSDKException;
+use Zalo\HttpClients\HttpClientsFactory;
 use Zalo\Url\UrlDetectionInterface;
 use Zalo\Url\ZaloUrlDetectionHandler;
-use Zalo\HttpClients\HttpClientsFactory;
-use Zalo\Exceptions\ZaloSDKException;
-use Zalo\ZaloClient;
-use Zalo\ZaloRequest;
 
 /**
  * Class Zalo
@@ -26,7 +25,7 @@ class Zalo
     /**
      * @const string Version number of the Zalo PHP SDK.
      */
-    const VERSION = '2.0.0';
+    const VERSION = '4.0.0';
     /**
      * @var ZaloClient The Zalo client service.
      */
@@ -40,9 +39,9 @@ class Zalo
      */
     protected $urlDetectionHandler;
     /**
-     * @var AccessToken|null The default access token to use with requests.
+     * @var ZaloToken|null The default zalo token to use with requests.
      */
-    protected $defaultAccessToken;
+    protected $defaultZaloToken;
     /**
      * @var ZaloResponse|ZaloBatchResponse|null Stores the last request made to Graph.
      */
@@ -51,7 +50,7 @@ class Zalo
      * @var OAuth2Client The OAuth 2.0 client service.
      */
     protected $oAuth2Client;
-    
+
     /**
      * Instantiates a new Zalo super-class object.
      *
@@ -70,21 +69,23 @@ class Zalo
             HttpClientsFactory::createHttpClient($config['http_client_handler']),
             $config['enable_beta_mode']
         );
-        $this->app = new ZaloApp($config['app_id'], $config['app_secret'], $config['callback_url']);
+        $this->app = new ZaloApp($config['app_id'], $config['app_secret']);
         $this->setUrlDetectionHandler($config['url_detection_handler'] ?: new ZaloUrlDetectionHandler());
-        if (isset($config['default_access_token'])) {
-            $this->setDefaultAccessToken($config['default_access_token']);
+        if (isset($config['default_zalo_token'])) {
+            $this->setDefaultZaloToken($config['default_zalo_token']);
         }
     }
+
     /**
      * Returns the last response returned from Graph.
      *
-     * @return ZaloResponse|ZaloBatchResponse|null
+     * @return ZaloResponse|null
      */
     public function getLastResponse()
     {
         return $this->lastResponse;
     }
+
     /**
      * Returns the URL detection handler.
      *
@@ -94,6 +95,7 @@ class Zalo
     {
         return $this->urlDetectionHandler;
     }
+
     /**
      * Changes the URL detection handler.
      *
@@ -103,48 +105,46 @@ class Zalo
     {
         $this->urlDetectionHandler = $urlDetectionHandler;
     }
+
     /**
-     * Returns the default AccessToken entity.
+     * Returns the default ZaloToken entity.
      *
-     * @return AccessToken|null
+     * @return ZaloToken|null
      */
-    public function getDefaultAccessToken()
+    public function getDefaultZaloToken()
     {
-        return $this->defaultAccessToken;
+        return $this->defaultZaloToken;
     }
+
     /**
-     * Sets the default access token to use with requests.
+     * Sets the default zalo token to use with requests.
      *
-     * @param AccessToken|string $accessToken The access token to save.
+     * @param ZaloToken|string $zaloToken The zalo token to save.
      *
      * @throws \InvalidArgumentException
      */
-    public function setDefaultAccessToken($accessToken)
+    public function setDefaultZaloToken($zaloToken)
     {
-        if (is_string($accessToken)) {
-            $this->defaultAccessToken = new AccessToken($accessToken);
+        if ($zaloToken instanceof ZaloToken) {
+            $this->defaultZaloToken = $zaloToken;
             return;
         }
-        if ($accessToken instanceof AccessToken) {
-            $this->defaultAccessToken = $accessToken;
-            return;
-        }
-        throw new \InvalidArgumentException('The default access token must be of type "string" or Zalo\AccessToken');
+        throw new \InvalidArgumentException('The default zalo token must be of type Zalo\ZaloToken');
     }
-    
+
     /**
      * Sends a GET request to Graph and returns the result.
      *
-     * @param string                  $url
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $eTag
+     * @param string $url
+     * @param ZaloToken|string|null $accessToken
+     * @param string|null $eTag
      *
      * @return ZaloResponse
      *
      * @throws ZaloSDKException
      */
     public function get($url, $accessToken = null, array $params = [], $eTag = null)
-    {   
+    {
         return $this->sendRequest(
             'GET',
             $url,
@@ -153,19 +153,20 @@ class Zalo
             $eTag
         );
     }
+
     /**
      * Sends a POST request to Graph and returns the result.
      *
-     * @param string                  $url
+     * @param string $url
      * @param AccessToken|string|null $accessToken
-     * @param array                   $params
-     * @param string|null             $eTag
+     * @param array $params
+     * @param string|null $eTag
      *
      * @return ZaloResponse
      *
      * @throws ZaloSDKException
      */
-    public function post($url, $accessToken = null, $params = [] , $eTag = null)
+    public function post($url, $accessToken = null, $params = [], $eTag = null)
     {
         return $this->sendRequest(
             'POST',
@@ -175,58 +176,15 @@ class Zalo
             $eTag
         );
     }
-    /**
-     * Sends a POST request to Graph and returns the result.
-     *
-     * @param string                  $url
-     * @param array                   $params
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $eTag
-     *
-     * @return ZaloResponse
-     *
-     * @throws ZaloSDKException
-     */
-    public function uploadVideo($url, array $params = [], $accessToken = null, $eTag = null)
-    {
-        return $this->sendRequestUploadVideo(
-            'POST',
-            $url,
-            $params,
-            $accessToken,
-            $eTag
-        );
-    }
-    /**
-     * Sends a DELETE request to Graph and returns the result.
-     *
-     * @param string                  $url
-     * @param array                   $params
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $eTag
-     *
-     * @return ZaloResponse
-     *
-     * @throws ZaloSDKException
-     */
-    public function delete($url, array $params = [], $accessToken = null, $eTag = null)
-    {
-        return $this->sendRequest(
-            'DELETE',
-            $url,
-            $params,
-            $accessToken,
-            $eTag
-        );
-    }
+
     /**
      * Sends a request to Graph and returns the result.
      *
-     * @param string                  $method
-     * @param string                  $url
-     * @param array                   $params
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $eTag
+     * @param string $method
+     * @param string $url
+     * @param array $params
+     * @param ZaloToken|string|null $accessToken
+     * @param string|null $eTag
      *
      * @return ZaloResponse
      *
@@ -237,48 +195,34 @@ class Zalo
         $request = $this->request($method, $url, $params, $accessToken, $eTag);
         return $this->lastResponse = $this->client->sendRequest($request);
     }
-    /**
-     * Sends a request upload video to OA and returns the result.
-     *
-     * @param string                  $method
-     * @param string                  $url
-     * @param array                   $params
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $eTag
-     *
-     * @return ZaloResponse
-     *
-     * @throws ZaloSDKException
-     */
-    public function sendRequestUploadVideo($method, $url, array $params = [], $accessToken = null, $eTag = null)
-    {
-        $request = $this->request($method, $url, $params, $accessToken, $eTag);
-        return $this->lastResponse = $this->client->sendRequestUploadVideo($request);
-    }
+
     /**
      * Instantiates a new ZaloRequest entity.
      *
-     * @param string                  $method
-     * @param string                  $url
-     * @param array                   $params
-     * @param AccessToken|string|null $accessToken
-     * @param string|null             $eTag
+     * @param string $method
+     * @param string $url
+     * @param array $params
+     * @param ZaloToken|string|null $accessToken
+     * @param string|null $eTag
+     * @param string|null $contentType
      *
      * @return ZaloRequest
      *
      * @throws ZaloSDKException
      */
-    public function request($method, $url, array $params = [], $accessToken = null, $eTag = null)
+    public function request($method, $url, array $params = [], $accessToken = null, $eTag = null, $contentType = null)
     {
-        $request =  new ZaloRequest(
+        $request = new ZaloRequest(
             $accessToken,
             $method,
             $url,
             $params,
-            $eTag
+            $eTag,
+            $contentType
         );
         return $request;
     }
+
     /**
      * Returns the ZaloApp entity.
      *
@@ -288,6 +232,7 @@ class Zalo
     {
         return $this->app;
     }
+
     /**
      * Returns the ZaloClient service.
      *
@@ -297,6 +242,7 @@ class Zalo
     {
         return $this->client;
     }
+
     /**
      * Returns the OAuth 2.0 client service.
      *
@@ -311,6 +257,7 @@ class Zalo
         }
         return $this->oAuth2Client;
     }
+
     /**
      * Returns Login helper.
      *

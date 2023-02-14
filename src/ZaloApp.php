@@ -26,10 +26,6 @@ class ZaloApp implements \Serializable
      */
     protected $secret;
 
-    /**
-     * @var string The app callback url.
-     */
-    protected $urlCallback;
 
     /**
      * @param string $id
@@ -37,17 +33,16 @@ class ZaloApp implements \Serializable
      *
      * @throws ZaloSDKException
      */
-    public function __construct($id, $secret, $url)
+    public function __construct($id, $secret)
     {
         if (!is_string($id)
-          // Keeping this for BC. Integers greater than PHP_INT_MAX will make is_int() return false
-          && !is_int($id)) {
+            // Keeping this for BC. Integers greater than PHP_INT_MAX will make is_int() return false
+            && !is_int($id)) {
             throw new ZaloSDKException('The "app_id" must be formatted as a string since many app ID\'s are greater than PHP_INT_MAX on some systems.');
         }
         // We cast as a string in case a valid int was set on a 64-bit system and this is unserialised on a 32-bit system
-        $this->id = (string) $id;
+        $this->id = (string)$id;
         $this->secret = $secret;
-        $this->urlCallback = $url;
     }
 
     /**
@@ -68,26 +63,6 @@ class ZaloApp implements \Serializable
     public function getSecret()
     {
         return $this->secret;
-    }
-
-    /**
-     * Returns the app secret.
-     *
-     * @return string
-     */
-    public function getCallbackUrl()
-    {
-        return $this->urlCallback;
-    }
-
-    /**
-     * Returns an app access token.
-     *
-     * @return AccessToken
-     */
-    public function getAccessToken()
-    {
-        return new AccessToken($this->id . '|' . $this->secret);
     }
 
     /**
