@@ -2,7 +2,7 @@
     "name": "zaloplatform/zalo-php-sdk",
     "description": "sdk for zalo developers",
     "keywords": ["zalosdk", "composer", "zalo", "sdk"],
-    "license": "Zalo Platform",
+    "license": "MIT",
     "authors": [
         {
             "name": "zaloplatform",

@@ -313,5 +313,5 @@ Current version is 4.0.0. We will update more features in next version.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT licensed](./LICENSE).
 
