@@ -84,4 +84,19 @@ class ZaloEndPoint
      * @const
      */
     const API_OA_GET_CONVERSATION = 'https://openapi.zalo.me/v2.0/oa/conversation';
+
+    /**
+     * @const
+     */
+    const API_OA_SEND_CONSULTATION_MESSAGE_V3 = 'https://openapi.zalo.me/v3.0/oa/message/cs';
+
+    /**
+     * @const
+     */
+    const API_OA_SEND_TRANSACTION_MESSAGE_V3 = 'https://openapi.zalo.me/v3.0/oa/message/transaction';
+
+    /**
+     * @const
+     */
+    const API_OA_SEND_PROMOTION_MESSAGE_V3 = 'https://openapi.zalo.me/v3.0/oa/message/promotion';
 }

@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v2.0.0)
+# Zalo SDK for PHP (v4.0.1)
 
 
 Landing page: <a href="https://developers.zalo.me/">https://developers.zalo.me/</a><br>
@@ -34,7 +34,7 @@ $zalo = new Zalo($config);
 
 ## Social API
 
-Tài liệu chi tiết <a href="https://developers.zalo.me/docs/api/social-api/tham-khao/user-access-token-v4-post-4316">tại đây</a>.
+Tài liệu chi tiết <a href="https://developers.zalo.me/docs/social-api/tham-khao/user-access-token-v4">tại đây</a>.
 
 ***Lấy link đăng nhập***
 ```php
@@ -87,6 +87,225 @@ $linkOAGrantPermission2App = $helper->getLoginUrlByOA($oaCallbackUrl, $codeChall
 $codeVerifier = "your code verifier";
 $zaloToken = $helper->getZaloTokenByOA($codeVerifier); // get zalo token
 $accessToken = $zaloToken->getAccessToken();
+```
+
+**Gửi tin Tư vấn dạng văn bản**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_TXT);
+$msgBuilder->withUserId('user_id');
+$msgBuilder->withText('Message Text');
+
+$msgText = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Tư vấn đính kèm hình ảnh**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_MEDIA);
+$msgBuilder->withUserId('user_id');
+$msgBuilder->withText('Message Image');
+$msgBuilder->withMediaUrl('https://stc-developers.zdn.vn/images/bg_1.jpg');
+
+$msgImage = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgImage);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Tư vấn theo mẫu yêu cầu thông tin người dùng**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_REQUEST_USER_INFO);
+$msgBuilder->withUserId('user_id');
+
+$element = array(
+    "title" => "OA Chatbot (Testing)",
+    "subtitle" => "Đang yêu cầu thông tin từ bạn",
+    "image_url" => "https://stc-oa-chat-adm.zdn.vn/images/request-info-banner.png"
+);
+$msgBuilder->addElement($element);
+
+$msgText = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Tư vấn đính kèm file**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_FILE);
+$msgBuilder->withUserId('user_id');
+$msgBuilder->withFileToken('PkkPJZzjmrbliDeEQ6h6MYVxrmrkSenF8A3N0MGpcWailOnLPpZDM7lbsG9YRSe8VxEG0MSuqmv_l945R3NM2d6vb0ThDhvQCgUYKo1vW0nwlRO6EdUnNoQWeo5sUUTqA8JM7cXHuNPqeiK81569QLtRcHSWEDWUFBQO7aa-taK6vvn473xS7m2xa1ySCzmUL-wR54mpYaXGxfj0CIgyTJWa8vW6');
+$msgFile = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgFile);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Tư vấn trích dẫn**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_TXT);
+$msgBuilder->withUserId('user_id');
+
+$msgBuilder->withText("quote message");
+$msgBuilder->withQuoteMessage('93f8c4b28f589705ce4a');
+
+$msgText = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Tư vấn kèm Sticker**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_MEDIA);
+$msgBuilder->withUserId('user_id');
+$msgBuilder->withText('text');
+$msgBuilder->withMediaType('sticker');
+$msgBuilder->withAttachment('bfe458bf64fa8da4d4eb');
+
+$msgSticker = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgSticker);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Giao dịch**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_TRANSACTION);
+$msgBuilder->withUserId('user_id');
+
+$msgBuilder->withTemplateType(TransactionTemplateType::TRANSACTION_ORDER);
+$msgBuilder->withLanguage("VI");
+
+$bannerElement = array(
+    'attachment_id' => 'a-JJEvLdkcEPxTOwb6gYTfhwm26VSBHjaE3MDfrWedgLyC0smJRiA8w-csdGVg1cdxZLPT1je7k4i8nwbdYrSCJact3NOVGltEUQTjDayIhTvf1zqsR-Ai3aboRERgjvm-cI8iqv-NoIxi0cdNBoE6SYVJooM6xKTBft',
+    'type' => 'banner'
+);
+$msgBuilder->addElement($bannerElement);
+
+$headerElement = array(
+    'content' => 'Trạng thái đơn hàng',
+    'align' => 'left',
+    'type' => 'header'
+);
+$msgBuilder->addElement($headerElement);
+
+$text1Element = array(
+    'align' => 'left',
+    'content' => '• Cảm ơn bạn đã mua hàng tại cửa hàng.<br>• Thông tin đơn hàng của bạn như sau:',
+    'type' => 'text'
+);
+$msgBuilder->addElement($text1Element);
+
+$tableContent1 = array(
+    'key' => 'Mã khách hàng',
+    'value' => 'F-01332973223'
+);
+$tableContent2 = array(
+    'key' => 'Trạng thái',
+    'value' => 'Đang giao',
+    'style' => 'yellow',
+);
+$tableContent3 = array(
+    'key' => 'Giá tiền',
+    'value' => '250,000đ'
+);
+$tableElement = array(
+    'content' => array($tableContent1, $tableContent2, $tableContent3),
+    'type' => 'table'
+);
+$msgBuilder->addElement($tableElement);
+
+$text2Element = array(
+    'content' => 'Lưu ý điện thoại. Xin cảm ơn!',
+    'align' => 'center',
+    'type' => 'text'
+
+);
+$msgBuilder->addElement($text2Element);
+
+$actionOpenUrl = $msgBuilder->buildActionOpenURL('https://oa.zalo.me/home');
+$msgBuilder->addButton('Kiểm tra lộ trình - default icon', '', $actionOpenUrl);
+
+$actionQueryShow = $msgBuilder->buildActionQueryShow('Xem lại giỏ hàng');
+$msgBuilder->addButton('Xem lại giỏ hàng', 'wZ753VDsR4xWEC89zNTsNkGZr1xsPs19vZF22VHtTbxZ8zG9g24u3FXjZrQvQNH2wMl1MhbwT5_oOvX5_szXLB8tZq--TY0Dhp61JRfsAWglCej8ltmg3xC_rqsWAdjRkctG5lXzAGVlQe9BhZ9mJcSYVIDsc7MoPMnQ', $actionQueryShow);
+
+$actionOpenPhone = $msgBuilder->buildActionOpenPhone('84123456789');
+$msgBuilder->addButton('Liên hệ tổng đài', 'gNf2KPUOTG-ZSqLJaPTl6QTcKqIIXtaEfNP5Kv2NRncWPbDJpC4XIxie20pTYMq5gYv60DsQRHYn9XyVcuzu4_5o21NQbZbCxd087DcJFq7bTmeUq9qwGVie2ahEpZuLg2KDJfJ0Q12c85jAczqtKcSYVGJJ1cZMYtKR', $actionOpenPhone);
+
+$msgTransaction = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_TRANSACTION_MESSAGE_V3, $this->accessToken, $msgTransaction);
+$result = $response->getDecodedBody();
+```
+
+**Gửi tin Truyền thông cá nhân**
+```php
+$msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_PROMOTION);
+$msgBuilder->withUserId('user_id');
+
+$bannerElement = array(
+    'attachment_id' => 'aERC3A0iYGgQxim8fYIK6fxzsXkaFfq7ZFRB3RCyZH6RyziRis3RNydebK3iSPCJX_cJ3k1nW1EQufjN_pUL1f6Ypq3rTef5nxp6H_HnXKFDiyD5y762HS-baqRpQe5FdA376lTfq1sRyPr8ypd74ecbaLyA-tGmuJ-97W',
+    'type' => 'banner'
+);
+$msgBuilder->addElement($bannerElement);
+
+$headerElement = array(
+    'content' => '💥💥Ưu đãi thành viên Platinum💥💥',
+    'type' => 'header'
+);
+$msgBuilder->addElement($headerElement);
+
+$text1Element = array(
+    'content' => 'Ưu đãi dành riêng cho khách hàng Nguyen Van A hạng thẻ Platinum<br>Voucher trị giá 150$',
+    'type' => 'text',
+    'align' => 'left'
+
+);
+$msgBuilder->addElement($text1Element);
+
+$tableContent1 = array(
+    'key' => 'Voucher',
+    'value' => 'VC09279222'
+);
+$tableContent2 = array(
+    'key' => 'Hạn sử dụng',
+    'value' => '30/12/2023'
+);
+$tableElement = array(
+    'content' => array($tableContent1, $tableContent2),
+    'type' => 'table'
+);
+$msgBuilder->addElement($tableElement);
+
+$text2Element = array(
+    'content' => 'Áp dụng tất cả cửa hàng trên toàn quốc',
+    'type' => 'text',
+    'align' => 'center'
+
+);
+$msgBuilder->addElement($text2Element);
+
+$actionOpenUrl = $msgBuilder->buildActionOpenURL('https://oa.zalo.me/home');
+$msgBuilder->addButton('Tham khảo chương trình', '', $actionOpenUrl);
+
+$actionQueryShow = $msgBuilder->buildActionQueryHide('#tuvan');
+$msgBuilder->addButton('Liên hệ chăm sóc viên', 'aeqg9SYn3nIUYYeWohGI1fYRF3V9f0GHceig8Ckq4WQVcpmWb-9SL8JLPt-6gX0QbTCfSuQv40UEst1imAm53CwFPsQ1jq9MsOnlQe6rIrZOYcrlWBTAKy_UQsV9vnfGozCuOvFfIbN5rcXddFKM4sSYVM0D50I9eWy3', $actionQueryShow);
+
+$msgPromotion = $msgBuilder->build();
+
+// send request
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_PROMOTION_MESSAGE_V3, $this->accessToken, $msgPromotion);
+$result = $response->getDecodedBody();
 ```
 
 **Gửi tin nhắn text**
@@ -305,7 +524,7 @@ $result = $response->getDecodedBody(); // result
 
 ## Versioning
 
-Current version is 4.0.0. We will update more features in next version.
+Current version is 4.0.1. We will update more features in next version.
 
 ## Authors
 
