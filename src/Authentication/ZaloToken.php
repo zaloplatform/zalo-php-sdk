@@ -35,26 +35,17 @@ class ZaloToken
     protected $accessTokenExpiresAt;
 
     /**
-     * Date when refresh token expires.
-     *
-     * @var \DateTime|null
-     */
-    protected $refreshTokenExpiresAt;
-
-    /**
      * @param string $accessToken
      * @param string $refreshToken
      * @param int $accessTokenExpiresIn
-     * @param int $refreshTokenExpiresIn
      */
-    public function __construct($accessToken, $refreshToken = '', $accessTokenExpiresIn = 0, $refreshTokenExpiresIn = 0)
+    public function __construct($accessToken, $refreshToken = '', $accessTokenExpiresIn = 0)
     {
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
 
         $now = time();
         $this->accessTokenExpiresAt = $this->getExpiresAtFromTimeStamp($now + $accessTokenExpiresIn);
-        $this->refreshTokenExpiresAt = $this->getExpiresAtFromTimeStamp($now + $refreshTokenExpiresIn);
     }
 
     /**
@@ -85,16 +76,6 @@ class ZaloToken
     public function getAccessTokenExpiresAt()
     {
         return $this->accessTokenExpiresAt;
-    }
-
-    /**
-     * Returns the refresh token expires as a DateTime.
-     *
-     * @return \DateTime|null
-     */
-    public function getRefreshTokenExpiresAt()
-    {
-        return $this->refreshTokenExpiresAt;
     }
 
     /**

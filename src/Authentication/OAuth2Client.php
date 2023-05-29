@@ -261,12 +261,7 @@ class OAuth2Client
             $accessTokenExpiresIn = $data['expires_in'];
         }
 
-        $refreshTokenExpiresIn = 0;
-        if (isset($data['refresh_token_expires_in'])) {
-            $refreshTokenExpiresIn = $data['refresh_token_expires_in'];
-        }
-
-        return new ZaloToken($accessToken, $refreshToken, $accessTokenExpiresIn, $refreshTokenExpiresIn);
+        return new ZaloToken($accessToken, $refreshToken, $accessTokenExpiresIn);
     }
 
     /**
