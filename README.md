@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v4.0.1)
+# Zalo SDK for PHP (v4.0.2)
 
 
 Landing page: <a href="https://developers.zalo.me/">https://developers.zalo.me/</a><br>
@@ -524,7 +524,7 @@ $result = $response->getDecodedBody(); // result
 
 ## Versioning
 
-Current version is 4.0.1. We will update more features in next version.
+Current version is 4.0.2. We will update more features in next version.
 
 ## Authors
 
