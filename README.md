@@ -42,7 +42,7 @@ $helper = $zalo -> getRedirectLoginHelper();
 $callbackUrl = "https://www.callbackack.com";
 $codeChallenge = "your code challenge";
 $state = "your state";
-$loginUrl = $helper->getLoginUrl($callBackUrl, $codeChallenge, $state); // This is login url
+$loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state); // This is login url
 ```
 
 **Lấy access token**
@@ -61,7 +61,7 @@ $accessToken = $zaloToken->getAccessToken();
 ```php
 $accessToken = 'put_your_access_token_here';
 $params = ['fields' => 'id,name,picture'];
-$response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
+$response = $zalo->get(ZaloEndPoint::API_GRAPH_ME, $accessToken, $params);
 $result = $response->getDecodedBody(); // result
 ```
 
@@ -98,7 +98,7 @@ $msgBuilder->withText('Message Text');
 $msgText = $msgBuilder->build();
 
 // send request
-$response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
 $result = $response->getDecodedBody();
 ```
 
@@ -112,7 +112,7 @@ $msgBuilder->withMediaUrl('https://stc-developers.zdn.vn/images/bg_1.jpg');
 $msgImage = $msgBuilder->build();
 
 // send request
-$response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgImage);
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgImage);
 $result = $response->getDecodedBody();
 ```
 
@@ -131,7 +131,7 @@ $msgBuilder->addElement($element);
 $msgText = $msgBuilder->build();
 
 // send request
-$response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+$response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
 $result = $response->getDecodedBody();
 ```
 
@@ -333,7 +333,7 @@ $msgBuilder->withButton('Open SMS', $actionOpenSMS);
 
 $msgText = $msgBuilder->build();
 // send request
-$response = $zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $accessToken, $msgText);
+$response = $zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgText);
 $result = $response->getDecodedBody(); // result
 ```
 
@@ -362,7 +362,7 @@ $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text'); // b
 $msgBuilder->withButton('Open SMS', $actionOpenSMS);
 
 $msgImage = $msgBuilder->build();
-$response = $zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
+$response = $zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
 $result = $response->getDecodedBody(); // result
 ```
 
@@ -388,7 +388,7 @@ $actionOpenSMS = $msgBuilder->buildActionOpenSMS('0919018791', 'sms text');
 $msgBuilder->withElement('Open SMS', 'https://cdn0.iconfinder.com/data/icons/new-design/512/42-Chat-512.png', '', $actionOpenSMS);
 
 $msgList = $msgBuilder->build();
-$response = $zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $accessToken, $msgList);
+$response = $zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgList);
 $result = $response->getDecodedBody(); // result
 ```
 
@@ -402,7 +402,7 @@ $msgBuilder->withMediaType('gif');
 $msgBuilder->withMediaSize(120, 120);
 $msgImage = $msgBuilder->build();
 
-$response = $zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
+$response = $zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $accessToken, $msgImage);
 $result = $response->getDecodedBody(); // result
 ```
 
@@ -419,27 +419,27 @@ $result = $response->getDecodedBody(); // result
 **Upload hình**
 ```php
 $data = array('file' => new ZaloFile($filePath));
-$response = $zalo->post(ZaloEndpoint::API_OA_UPLOAD_PHOTO, $accessToken, $data);
+$response = $zalo->post(ZaloEndPoint::API_OA_UPLOAD_PHOTO, $accessToken, $data);
 $result = $response->getDecodedBody(); // result
 ```
 
 **Upload hình Gif**
 ```php
 $data = array('file' => new ZaloFile($filePath));
-$response = $zalo->post(ZaloEndpoint::API_OA_UPLOAD_GIF, $accessToken, $data);
+$response = $zalo->post(ZaloEndPoint::API_OA_UPLOAD_GIF, $accessToken, $data);
 $result = $response->getDecodedBody(); // result
 ```
 
 **Upload file PDF**
 ```php
 $data = array('file' => new ZaloFile($filePath));
-$response = $zalo->post(ZaloEndpoint::API_OA_UPLOAD_FILE, $accessToken, $data);
+$response = $zalo->post(ZaloEndPoint::API_OA_UPLOAD_FILE, $accessToken, $data);
 $result = $response->getDecodedBody(); // result
 ```
 
 **Lấy danh sách nhãn**
 ```php
-$response = $zalo->get(ZaloEndpoint::API_OA_GET_LIST_TAG, $accessToken, []);
+$response = $zalo->get(ZaloEndPoint::API_OA_GET_LIST_TAG, $accessToken, []);
 $result = $response->getDecodedBody();
 ```
 
@@ -448,7 +448,7 @@ $result = $response->getDecodedBody();
 // build data
 $data = array('tag_name' => 'vip');
 // send request
-$response = $zalo->post(ZaloEndpoint::API_OA_REMOVE_TAG, $accessToken, $data);
+$response = $zalo->post(ZaloEndPoint::API_OA_REMOVE_TAG, $accessToken, $data);
 $result = $response->getDecodedBody();
 ```
 
@@ -460,7 +460,7 @@ $data = array(
         'tag_name' => 'vip'
 );
 // send request
-$response = $zalo->post(ZaloEndpoint::API_OA_REMOVE_USER_FROM_TAG, $accessToken, $data);
+$response = $zalo->post(ZaloEndPoint::API_OA_REMOVE_USER_FROM_TAG, $accessToken, $data);
 $result = $response->getDecodedBody();
 ```
 
@@ -472,7 +472,7 @@ $data = array(
         'tag_name' => 'vip'
 );
 // send request
-$response = $zalo->post(ZaloEndpoint::API_OA_TAG_USER, $accessToken, $data);
+$response = $zalo->post(ZaloEndPoint::API_OA_TAG_USER, $accessToken, $data);
 $result = $response->getDecodedBody();
 ```
 
@@ -481,7 +481,7 @@ $result = $response->getDecodedBody();
 $data = ['data' => json_encode(array(
             'user_id' => '494021888309207992'
         ))];
-$response = $zalo->get(ZaloEndpoint::API_OA_GET_USER_PROFILE, $accessToken, $data);
+$response = $zalo->get(ZaloEndPoint::API_OA_GET_USER_PROFILE, $accessToken, $data);
 $result = $response->getDecodedBody(); // result
 ```
 

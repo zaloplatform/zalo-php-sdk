@@ -45,7 +45,7 @@ class TestOpenAPI extends TestCase
             $msgText = $msgBuilder->build();
 
             // send request
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgText);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgText);
             $result = $response->getDecodedBody();
             print_r('testSendTextMessageAPI: ' . PHP_EOL);
             print_r($result);
@@ -68,7 +68,7 @@ class TestOpenAPI extends TestCase
             $msgImage = $msgBuilder->build();
 
             // send request
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgImage);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgImage);
             $result = $response->getDecodedBody();
             print_r('testSendImageMessageAPI: ' . PHP_EOL);
             print_r($result);
@@ -101,7 +101,7 @@ class TestOpenAPI extends TestCase
             $msgBuilder->withElement('Open SMS', 'https://cdn0.iconfinder.com/data/icons/new-design/512/42-Chat-512.png', '', $actionOpenSMS);
 
             $msgList = $msgBuilder->build();
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgList);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgList);
             $result = $response->getDecodedBody(); // result
             print_r('testSendMessageListAPI: ' . PHP_EOL);
             print_r($result);
@@ -123,7 +123,7 @@ class TestOpenAPI extends TestCase
             $msgBuilder->withMediaSize(120, 120);
             $msgImage = $msgBuilder->build();
 
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgImage);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_MESSAGE, $this->accessToken, $msgImage);
             $result = $response->getDecodedBody(); // result
             print_r('testSendGifMessageAPI: ' . PHP_EOL);
             print_r($result);
@@ -157,7 +157,7 @@ class TestOpenAPI extends TestCase
         try {
             $filePath = 'put your file path';
             $data = array('file' => new ZaloFile($filePath));
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_UPLOAD_PHOTO, $this->accessToken, $data);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_UPLOAD_PHOTO, $this->accessToken, $data);
             $result = $response->getDecodedBody(); // result
             print_r('testUploadImageAPI: ' . PHP_EOL);
             print_r($result);
@@ -173,7 +173,7 @@ class TestOpenAPI extends TestCase
         try {
             $filePath = 'put your file path';
             $data = array('file' => new ZaloFile($filePath));
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_UPLOAD_GIF, $this->accessToken, $data);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_UPLOAD_GIF, $this->accessToken, $data);
             $result = $response->getDecodedBody(); // result
             print_r('testUploadGifAPI: ' . PHP_EOL);
             print_r($result);
@@ -189,7 +189,7 @@ class TestOpenAPI extends TestCase
         try {
             $filePath = 'put your file path';
             $data = array('file' => new ZaloFile($filePath));
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_UPLOAD_FILE, $this->accessToken, $data);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_UPLOAD_FILE, $this->accessToken, $data);
             $result = $response->getDecodedBody(); // result
             print_r('testUploadPDFAPI: ' . PHP_EOL);
             print_r($result);
@@ -203,7 +203,7 @@ class TestOpenAPI extends TestCase
     public function testGetListTagOfOAAPI()
     {
         try {
-            $response = $this->zalo->get(ZaloEndpoint::API_OA_GET_LIST_TAG, $this->accessToken, []);
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_LIST_TAG, $this->accessToken, []);
             $result = $response->getDecodedBody();
             print_r('testGetListTagOfOAAPI: ' . PHP_EOL);
             print_r($result);
@@ -218,7 +218,7 @@ class TestOpenAPI extends TestCase
     {
         try {
             $data = array('tag_name' => 'vip');
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_REMOVE_TAG, $this->accessToken, $data);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_REMOVE_TAG, $this->accessToken, $data);
             $result = $response->getDecodedBody();
             print_r('testRemoveTagOfOAAPI: ' . PHP_EOL);
             print_r($result);
@@ -236,7 +236,7 @@ class TestOpenAPI extends TestCase
                 'user_id' => 'user_id',
                 'tag_name' => 'tag_name'
             );
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_REMOVE_USER_FROM_TAG, $this->accessToken, $data);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_REMOVE_USER_FROM_TAG, $this->accessToken, $data);
             $result = $response->getDecodedBody();
             print_r('testRemoveUserFromTagAPI: ' . PHP_EOL);
             print_r($result);
@@ -254,7 +254,7 @@ class TestOpenAPI extends TestCase
                 'user_id' => 'user_id',
                 'tag_name' => 'tag_name'
             );
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_TAG_USER, $this->accessToken, $data);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_TAG_USER, $this->accessToken, $data);
             $result = $response->getDecodedBody();
             print_r('testAddUserToTagAPI: ' . PHP_EOL);
             print_r($result);
@@ -289,7 +289,7 @@ class TestOpenAPI extends TestCase
             $data = ['data' => json_encode(array(
                 'user_id' => 'user_id'
             ))];
-            $response = $this->zalo->get(ZaloEndpoint::API_OA_GET_USER_PROFILE, $this->accessToken, $data);
+            $response = $this->zalo->get(ZaloEndPoint::API_OA_GET_USER_PROFILE, $this->accessToken, $data);
             $result = $response->getDecodedBody(); // result
             print_r('testOAGetUserProfileAPI: ' . PHP_EOL);
             print_r($result);
@@ -361,7 +361,7 @@ class TestOpenAPI extends TestCase
             $msgText = $msgBuilder->build();
 
             // send request
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
             $result = $response->getDecodedBody();
             print_r('testOASendConsultationTextMessageAPI: ' . PHP_EOL);
             print_r($result);
@@ -384,7 +384,7 @@ class TestOpenAPI extends TestCase
             $msgImage = $msgBuilder->build();
 
             // send request
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgImage);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgImage);
             $result = $response->getDecodedBody();
             print_r('testOASendImageConsultationMessageAPI: ' . PHP_EOL);
             print_r($result);
@@ -411,7 +411,7 @@ class TestOpenAPI extends TestCase
             $msgText = $msgBuilder->build();
 
             // send request
-            $response = $this->zalo->post(ZaloEndpoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
+            $response = $this->zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $this->accessToken, $msgText);
             $result = $response->getDecodedBody();
             print_r('testOARequestUserInfoConsultationMessageAPI: ' . PHP_EOL);
             print_r($result);
