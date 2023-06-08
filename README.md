@@ -34,7 +34,8 @@ $zalo = new Zalo($config);
 
 ## Social API
 
-Tài liệu chi tiết <a href="https://developers.zalo.me/docs/social-api/tham-khao/user-access-token-v4">tại đây</a>.
+Tài liệu chi tiết <a href="https://developers.zalo.me/docs/social-api/tham-khao/user-access-token-v4">tại đây</a>.<br />
+Code mẫu tạo code verifier và code challenge [tại đây.](#sample-code-verifier-and-code-challenge)
 
 ***Lấy link đăng nhập***
 ```php
@@ -67,7 +68,8 @@ $result = $response->getDecodedBody(); // result
 
 ## Official Account Open API
 
-Tài liệu chi tiết <a href="https://developers.zalo.me/docs/api/official-account-api/xac-thuc-va-uy-quyen/cach-1-xac-thuc-voi-giao-thuc-oauth/yeu-cau-cap-moi-oa-access-token-post-4307">tại đây</a>.
+Tài liệu chi tiết <a href="https://developers.zalo.me/docs/api/official-account-api/xac-thuc-va-uy-quyen/cach-1-xac-thuc-voi-giao-thuc-oauth/yeu-cau-cap-moi-oa-access-token-post-4307">tại đây</a>.<br />
+Code mẫu tạo code verifier và code challenge [tại đây.](#sample-code-verifier-and-code-challenge)
 
 **Tạo link Offical Account ủy quyền cho ứng dụng**
 ```php
@@ -522,9 +524,18 @@ $response = $zalo->get(ZaloEndPoint::API_OA_GET_CONVERSATION, $accessToken, $dat
 $result = $response->getDecodedBody(); // result
 ```
 
+## Phụ lục
+
+<a id="sample-code-verifier-and-code-challenge"></a>
+**Code mẫu tạo code verifier và code challenge**
+```php
+$codeVerifier = PKCEUtil::genCodeVerifier();
+$codeChallenge = PKCEUtil::genCodeChallenge($codeVerifier);
+```
+
 ## Versioning
 
-Current version is 4.0.2. We will update more features in next version.
+Current version is 4.0.3. We will update more features in next version.
 
 ## Authors
 

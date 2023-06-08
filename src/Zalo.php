@@ -25,7 +25,7 @@ class Zalo
     /**
      * @const string Version number of the Zalo PHP SDK.
      */
-    const VERSION = '4.0.2';
+    const VERSION = '4.0.3';
     /**
      * @var ZaloClient The Zalo client service.
      */
