@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v4.0.2)
+# Zalo SDK for PHP (v4.0.3)
 
 
 Landing page: <a href="https://developers.zalo.me/">https://developers.zalo.me/</a><br>
