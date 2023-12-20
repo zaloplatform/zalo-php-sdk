@@ -25,7 +25,7 @@ class Zalo
     /**
      * @const string Version number of the Zalo PHP SDK.
      */
-    const VERSION = '4.0.3';
+    const VERSION = '4.0.4';
     /**
      * @var ZaloClient The Zalo client service.
      */
@@ -50,6 +50,11 @@ class Zalo
      * @var OAuth2Client The OAuth 2.0 client service.
      */
     protected $oAuth2Client;
+    /**
+     *
+     * @var bool Whether to use the verification API call with appsecret_proof
+     */
+    private $useAppSecretProof = false;
 
     /**
      * Instantiates a new Zalo super-class object.
@@ -220,6 +225,15 @@ class Zalo
             $eTag,
             $contentType
         );
+
+        if ($this->useAppSecretProof) {
+            $appSecretProof = hash_hmac('sha256', $accessToken, $this->app->getSecret());
+
+            $request->setHeaders([
+                'appsecret_proof' => $appSecretProof,
+            ]);
+        }
+
         return $request;
     }
 
@@ -269,5 +283,32 @@ class Zalo
             $this->getOAuth2Client(),
             $this->urlDetectionHandler
         );
+    }
+
+    /**
+     * Get useAppSecretProof
+     *
+     * @return bool
+     */
+    public function isUseAppSecretProof()
+    {
+        return $this->useAppSecretProof;
+    }
+
+    /**
+     * Set useAppSecretProof
+     *
+     * @param $useAppSecretProof
+     * @throws InvalidArgumentException If the input data is not a bool
+     *
+     * @return void
+     */
+    public function setUseAppSecretProof($useAppSecretProof)
+    {
+        if (is_bool($useAppSecretProof)) {
+            $this->useAppSecretProof = $useAppSecretProof;
+        } else {
+            throw new InvalidArgumentException('Incorrect data type: "useAppSecretProof"');
+        }
     }
 }

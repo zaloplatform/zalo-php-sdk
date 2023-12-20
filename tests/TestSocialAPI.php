@@ -11,7 +11,7 @@ class TestSocialAPI extends TestCase
     /**
      * @var string
      */
-    protected $accessToken = 'gHafLTJLq5oY4IPGrztJNwSI9bBImDSdv6vbJvVqa0Q59HnIgvhm0Bel2NR6iASboc4HV-NeuIJoSbbs_TpU58rPNMsTw-aHgbDcODRbqIwXS7zdiDll595j0sYIg8yMjZqTHikqXKQs4YKGcP-AP8eBCsk1fhyzZWWyF8x5hc7_RImD_QA5GDLcQJ3gsyrzvn1S7TYXz67g0b0UoQ71HDekRnN9W-zd-J9xPikcsH_q2rmHqANxVSy6LmtWmwLRqMq21iNwyq-qD7uLXvY6HwGqCa-Pl84MKsX5_C4usClRL0';
+    protected $accessToken = 'put your access token';
     /**
      * @var Zalo
      */
@@ -21,8 +21,8 @@ class TestSocialAPI extends TestCase
     {
         try {
             $config = array(
-                'app_id' => '3980813874004753450',
-                'app_secret' => '4B52V2ARl5627KIMFKC6'
+                'app_id' => 'put your app id',
+                'app_secret' => 'put your app secret key'
             );
 
             $this->zalo = new Zalo($config);

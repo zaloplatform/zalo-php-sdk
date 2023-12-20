@@ -24,8 +24,8 @@ class TestOpenAPI extends TestCase
     {
         try {
             $config = array(
-                'app_id' => '1644840091349742683',
-                'app_secret' => 'Jr6TXIq7TT3R6D3xpwu0'
+                'app_id' => 'put your app id',
+                'app_secret' => 'put your app secret key'
             );
 
             $this->zalo = new Zalo($config);

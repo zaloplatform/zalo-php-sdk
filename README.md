@@ -1,4 +1,4 @@
-# Zalo SDK for PHP (v4.0.3)
+# Zalo SDK for PHP (v4.0.4)
 
 
 Landing page: <a href="https://developers.zalo.me/">https://developers.zalo.me/</a><br>
@@ -533,9 +533,15 @@ $codeVerifier = PKCEUtil::genCodeVerifier();
 $codeChallenge = PKCEUtil::genCodeChallenge($codeVerifier);
 ```
 
+<a id="verifying-api-with-appsecretproof"></a>
+**Bật xác thực API với appsecret_proof**
+```php
+$zalo->setUseAppSecretProof(true);
+```
+
 ## Versioning
 
-Current version is 4.0.3. We will update more features in next version.
+Current version is 4.0.4. We will update more features in next version.
 
 ## Authors
 
